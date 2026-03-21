@@ -1,1 +1,68 @@
+Smart Ranch Management System - Walkthrough
+Prerequisites
+
+PostgreSQL: Must be installed and running.
+Flutter SDK: Must be installed and configured.
+Python 3.8+: Must be installed.
+
+1. Database Setup
+Ensure PostgreSQL is running.
+Create a database named smartranch (or update 
+backend/database.py
+ with your DB name).
+
+Run the initialization script:
+
+psql -U postgres -d smartranch -f init.sql
+Note: The backend will also attempt to create tables on startup if they don't exist.
+2. Backend Setup (FastAPI)
+Navigate to the backend directory:
+cd backend
+Create a virtual environment and install dependencies:
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+Configure Database:
+Open 
+database.py
+.
+Update DATABASE_URL if your credentials differ from postgres:password@localhost/smartranch.
+Run the server:
+uvicorn main:app --reload
+The API will be available at http://127.0.0.1:8000.
+Swagger UI docs: http://127.0.0.1:8000/docs.
+
+3. Frontend Setup (Flutter)
+Navigate to the mobile_app directory:
+cd mobile_app
+Install dependencies:
+flutter pub get
+Configure API URL:
+Open 
+lib/services/api_service.dart
+.
+If running on an Android Emulator, use http://10.0.2.2:8000.
+If running on Windows/Web, use http://127.0.0.1:8000.
+Run the app:
+flutter run
+
+4. Verification
+You can run the included test script to verify the backend API:
+cd backend
+python test_api.py
+to run the app:
 python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
+
+to run the app in production:
+uvicorn main:app --reload
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+in api_service.dart:
+final Uri url = Uri.parse('http://127.0.0.1:8000');
+Web (Chrome) or Android Emulator.
+Web: Uses http://127.0.0.1:8000
+Android: Uses http://10.0.2.2:8000
+
+api_service.dart
+use 127.0.0.1 for Web and 10.0.2.2 for Android. 
+
