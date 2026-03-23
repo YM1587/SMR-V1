@@ -59,37 +59,73 @@ class _InventoryScreenState extends State<InventoryScreen> {
     ).then((_) => _loadData()); // Refresh after adding
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // Filter pens that have animals, or show all pens?
-    // User wants organization, so showing pens that have animals is most logical for "Inventory".
-    // But showing ALL pens gives a clearer picture of the ranch structure.
-    // Let's show pens that have animals + an "Unassigned" pen if needed.
+    final activeAnimals = _allAnimals.where((a) => a.status != 'Disposed').toList();
+    final disposedAnimals = _allAnimals.where((a) => a.status == 'Disposed').toList();
     
-    final pensToShow = _pens.where((p) => _groupedAnimals.containsKey(p.id)).toList();
-    final unassignedAnimals = _groupedAnimals[-1] ?? [];
+    // Group active by pen
+    Map<int, List<Animal>> groupedActive = {};
+    for (var animal in activeAnimals) {
+      final penId = animal.penId ?? -1;
+      groupedActive.putIfAbsent(penId, () => []).add(animal);
+    }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Livestock Inventory'),
-        actions: [
-          IconButton(icon: const Icon(Icons.add), onPressed: _showAddAnimalDialog),
-        ],
+    final activePens = _pens.where((p) => groupedActive.containsKey(p.id)).toList();
+    final unassignedActive = groupedActive[-1] ?? [];
+
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Livestock Inventory'),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Active Herd'),
+              Tab(text: 'Disposed / Archive'),
+            ],
+          ),
+          actions: [
+            IconButton(icon: const Icon(Icons.add), onPressed: _showAddAnimalDialog),
+          ],
+        ),
+        body: TabBarView(
+          children: [
+            // Tab 1: Active
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    itemCount: activePens.length + (unassignedActive.isNotEmpty ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index < activePens.length) {
+                        final pen = activePens[index];
+                        final penAnimals = groupedActive[pen.id] ?? [];
+                        return _buildPenSection(pen.name, penAnimals);
+                      } else {
+                        return _buildPenSection("Unassigned / Other", unassignedActive);
+                      }
+                    },
+                  ),
+            // Tab 2: Disposed
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    itemCount: disposedAnimals.length,
+                    itemBuilder: (context, index) {
+                      final animal = disposedAnimals[index];
+                      return _buildDisposedAnimalTile(animal);
+                    },
+                  ),
+          ],
+        ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: pensToShow.length + (unassignedAnimals.isNotEmpty ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index < pensToShow.length) {
-                  final pen = pensToShow[index];
-                  final penAnimals = _groupedAnimals[pen.id] ?? [];
-                  return _buildPenSection(pen.name, penAnimals);
-                } else {
-                  return _buildPenSection("Unassigned / Other", unassignedAnimals);
-                }
-              },
-            ),
+    );
+  }
+
+  Widget _buildDisposedAnimalTile(Animal animal) {
+    return ListTile(
+      leading: const CircleAvatar(backgroundColor: Colors.grey, child: Icon(Icons.archive, color: Colors.white)),
+      title: Text(animal.name ?? animal.tagNumber),
+      subtitle: Text('Reason: ${animal.disposalReason} - ${animal.disposalDate != null ? DateFormat('MMM d, yyyy').format(animal.disposalDate!) : "Unknown Date"}'),
+      trailing: Text(animal.disposalValue != null ? 'KES ${animal.disposalValue!.toStringAsFixed(0)}' : ''),
     );
   }
 
