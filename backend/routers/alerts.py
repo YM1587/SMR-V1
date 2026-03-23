@@ -60,7 +60,7 @@ async def generate_dynamic_alerts(farmer_id: int, db: AsyncSession = Depends(get
                 farmer_id=farmer_id,
                 type="CRITICAL",
                 title="Untreated Illness",
-                message=f"{animal.tag_number} has been sick for over 3 days without a follow-up.",
+                message=f"{animal.name or animal.tag_number} has been sick for over 3 days without a follow-up.",
                 severity="High",
                 related_animal_id=animal.animal_id
             )
@@ -85,7 +85,7 @@ async def generate_dynamic_alerts(farmer_id: int, db: AsyncSession = Depends(get
                 farmer_id=farmer_id,
                 type="WARNING",
                 title="Calving Due Soon",
-                message=f"{animal.tag_number} is expected to calve by {br.expected_calving_date}.",
+                message=f"{animal.name or animal.tag_number} is expected to calve by {br.expected_calving_date}.",
                 severity="Medium",
                 related_animal_id=animal.animal_id
             )
