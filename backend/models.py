@@ -22,6 +22,7 @@ class Farmer(Base):
     labor_activities = relationship("LaborActivity", back_populates="farmer", cascade="all, delete-orphan")
     financial_transactions = relationship("FinancialTransaction", back_populates="farmer", cascade="all, delete-orphan")
     performance_caches = relationship("PerformanceCache", back_populates="farmer", cascade="all, delete-orphan")
+    alerts = relationship("Alert", back_populates="farmer", cascade="all, delete-orphan")
 
 class AnimalPen(Base):
     __tablename__ = "animal_pen"
@@ -232,3 +233,22 @@ class PerformanceCache(Base):
     __table_args__ = (UniqueConstraint('farmer_id', 'metric_name', 'period_type', 'period_start', 'related_animal_id', 'related_pen_id', name='unique_performance_metric'),)
 
     farmer = relationship("Farmer", back_populates="performance_caches")
+
+class Alert(Base):
+    __tablename__ = "alert"
+
+    id = Column(Integer, primary_key=True, index=True)
+    farmer_id = Column(Integer, ForeignKey("farmer.farmer_id", ondelete="CASCADE"), nullable=False)
+    type = Column(String(20), nullable=False) # CRITICAL, WARNING, INFO
+    title = Column(String(100), nullable=False)
+    message = Column(Text, nullable=False)
+    severity = Column(String(20), nullable=False)
+    related_animal_id = Column(Integer, ForeignKey("animal.animal_id", ondelete="SET NULL"))
+    is_active = Column(Integer, default=1) # 1 for active, 0 for dismissed (Postgres doesn't always handle bool elegantly in all SQL clients, I'll use 1/0 or Boolean)
+    # Actually let's use Boolean
+    is_dismissed = Column(Integer, default=0) # Using 0/1 for better compatibility with some HTAP tools if needed, but let's stick to simple types. 
+    # Actually, let's use TIMESTAMP for cleared_at or similar? No, is_dismissed is fine.
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    farmer = relationship("Farmer", back_populates="alerts")
+    related_animal = relationship("Animal")
