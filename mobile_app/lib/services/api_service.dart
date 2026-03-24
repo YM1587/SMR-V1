@@ -307,4 +307,24 @@ class ApiService {
       throw Exception('Failed to resolve health record: ${response.body}');
     }
   }
+
+  static Future<void> markBreedingPregnant(int breedingId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/breeding/$breedingId/pregnant'),
+      headers: {"Content-Type": "application/json"},
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to mark breeding as pregnant: ${response.body}');
+    }
+  }
+
+  static Future<void> markBreedingCalved(int breedingId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/breeding/$breedingId/calved'),
+      headers: {"Content-Type": "application/json"},
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to mark breeding as calved: ${response.body}');
+    }
+  }
 }

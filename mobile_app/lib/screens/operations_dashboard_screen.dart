@@ -374,6 +374,44 @@ class _OperationsDashboardScreenState extends State<OperationsDashboardScreen> {
                 minimumSize: const Size(80, 36),
               ),
             )
+          else if (status == 'Failed' && a['breeding_id'] != null)
+            TextButton.icon(
+              onPressed: () async {
+                try {
+                  await ApiService.markBreedingPregnant(a['breeding_id']);
+                  _fetchData();
+                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Marked Pregnant')));
+                } catch (e) {
+                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+                }
+              },
+              icon: const Icon(Icons.pregnant_woman, size: 16),
+              label: const Text('Pregnant?'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.purple,
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(80, 36),
+              ),
+            )
+          else if ((status == 'Pregnant' || status == 'Due Soon') && a['breeding_id'] != null)
+            TextButton.icon(
+              onPressed: () async {
+                try {
+                  await ApiService.markBreedingCalved(a['breeding_id']);
+                  _fetchData();
+                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Marked Calved')));
+                } catch (e) {
+                  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+                }
+              },
+              icon: const Icon(Icons.child_care, size: 16),
+              label: const Text('Calved?'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.blue,
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(80, 36),
+              ),
+            )
           else
             const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
         ],

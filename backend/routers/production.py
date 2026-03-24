@@ -203,7 +203,8 @@ async def get_pregnant_animals(farmer_id: int, db: AsyncSession = Depends(get_db
             "name": a.name,
             "breed": a.breed,
             "expected_calving_date": br.expected_calving_date,
-            "status": "Pregnant"
+            "status": "Pregnant",
+            "breeding_id": br.breeding_id
         } for a, br in result.all()
     ]
 
@@ -229,7 +230,8 @@ async def get_due_soon_animals(farmer_id: int, db: AsyncSession = Depends(get_db
             "name": a.name,
             "breed": a.breed,
             "expected_calving_date": br.expected_calving_date,
-            "status": "Due Soon"
+            "status": "Due Soon",
+            "breeding_id": br.breeding_id
         } for a, br in result.all()
     ]
 
@@ -252,6 +254,32 @@ async def get_failed_breeding_animals(farmer_id: int, db: AsyncSession = Depends
             "name": a.name,
             "breed": a.breed,
             "breeding_date": br.breeding_date,
-            "status": "Failed"
+            "status": "Failed",
+            "breeding_id": br.breeding_id
         } for a, br in result.all()
     ]
+
+@router.post("/breeding/{breeding_id}/pregnant")
+async def mark_breeding_pregnant(breeding_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(BreedingRecord).where(BreedingRecord.breeding_id == breeding_id))
+    record = result.scalars().first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Breeding record not found")
+    
+    record.pregnancy_status = "Confirmed"
+    if not record.expected_calving_date:
+        record.expected_calving_date = record.breeding_date + timedelta(days=283)
+    await db.commit()
+    return {"status": "pregnant"}
+
+@router.post("/breeding/{breeding_id}/calved")
+async def mark_breeding_calved(breeding_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(BreedingRecord).where(BreedingRecord.breeding_id == breeding_id))
+    record = result.scalars().first()
+    if not record:
+        raise HTTPException(status_code=404, detail="Breeding record not found")
+    
+    record.actual_calving_date = date.today()
+    record.outcome = "Successful"
+    await db.commit()
+    return {"status": "calved"}
