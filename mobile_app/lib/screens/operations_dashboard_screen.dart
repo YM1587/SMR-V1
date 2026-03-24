@@ -350,6 +350,7 @@ class _OperationsDashboardScreenState extends State<OperationsDashboardScreen> {
                 Text(a['condition'] ?? a['expected_calving_date'] ?? '', style: const TextStyle(fontSize: 11, color: Colors.grey)),
               ],
             ),
+          ),
           if (status == 'Sick' && a['record_id'] != null)
             TextButton.icon(
               onPressed: () async {
