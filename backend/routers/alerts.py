@@ -9,6 +9,7 @@ from database import get_db
 import models
 import schemas
 from models import Alert, Animal, HealthRecord, BreedingRecord, MilkProduction, WeightRecord
+from auth import get_current_user
 
 router = APIRouter(
     prefix="/alerts",
@@ -16,24 +17,38 @@ router = APIRouter(
 )
 
 @router.get("/")
-async def get_alerts(farmer_id: int, db: AsyncSession = Depends(get_db)):
+async def get_alerts(
+    farmer_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    if current_user.farmer_id != farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
     # 1. First, dynamically generate alerts if needed
-    await generate_dynamic_alerts(farmer_id, db)
+    await generate_dynamic_alerts(current_user.farmer_id, db)
     
     # 2. Fetch active, non-dismissed alerts
     result = await db.execute(
         select(Alert)
-        .where(and_(Alert.farmer_id == farmer_id, Alert.is_dismissed == 0))
+        .where(and_(Alert.farmer_id == current_user.farmer_id, Alert.is_dismissed == 0))
         .order_by(desc(Alert.created_at))
     )
     return result.scalars().all()
 
 @router.post("/{alert_id}/dismiss")
-async def dismiss_alert(alert_id: int, db: AsyncSession = Depends(get_db)):
+async def dismiss_alert(
+    alert_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.Farmer = Depends(get_current_user)
+):
     result = await db.execute(select(Alert).where(Alert.id == alert_id))
     alert = result.scalars().first()
     if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
+    
+    if alert.farmer_id != current_user.farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
     
     alert.is_dismissed = 1
     await db.commit()

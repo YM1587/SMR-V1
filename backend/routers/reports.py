@@ -17,11 +17,20 @@ router = APIRouter(
 )
 
 @router.get("/fcr/{pen_id}")
-async def get_pen_fcr(pen_id: int, db: AsyncSession = Depends(get_db), current_user: models.Farmer = Depends(get_current_user)):
+async def get_pen_fcr(
+    pen_id: int, 
+    db: AsyncSession = Depends(get_db), 
+    current_user: models.Farmer = Depends(get_current_user)
+):
     """
     Calculates Feed Conversion Ratio (FCR) for a specific pen.
-    FCR = Total Feed Consumed / Total Weight Gain
     """
+    # Verify pen ownership
+    pen_res = await db.execute(select(models.AnimalPen).where(models.AnimalPen.pen_id == pen_id))
+    pen = pen_res.scalars().first()
+    if not pen or pen.farmer_id != current_user.farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
     # 1. Total Feed Consumed in this Pen
     feed_query = select(func.sum(models.FeedLog.quantity_kg)).where(models.FeedLog.pen_id == pen_id)
     feed_result = await db.execute(feed_query)
@@ -30,17 +39,14 @@ async def get_pen_fcr(pen_id: int, db: AsyncSession = Depends(get_db), current_u
     if total_feed == 0:
         return {"fcr": 0, "message": "No feed records found for this pen."}
 
-    # 2. Total Weight Gain for all animals in this Pen
-    # Simplified: (Current Weight - Initial Weight) for each animal
+    # 2. Total Weight Gain
     animals_query = select(models.Animal.animal_id).where(models.Animal.pen_id == pen_id)
     animals_result = await db.execute(animals_query)
     animal_ids = animals_result.scalars().all()
     
     total_gain = 0
     for a_id in animal_ids:
-        # Get earliest weight
         first_w = await db.execute(select(models.WeightRecord.weight_kg).where(models.WeightRecord.animal_id == a_id).order_by(models.WeightRecord.date.asc()).limit(1))
-        # Get latest weight
         last_w = await db.execute(select(models.WeightRecord.weight_kg).where(models.WeightRecord.animal_id == a_id).order_by(models.WeightRecord.date.desc()).limit(1))
         
         start = first_w.scalar()
@@ -61,22 +67,24 @@ async def get_pen_fcr(pen_id: int, db: AsyncSession = Depends(get_db), current_u
     }
 
 @router.get("/mortality")
-async def get_mortality_rate(farmer_id: int, db: AsyncSession = Depends(get_db), current_user: models.Farmer = Depends(get_current_user)):
-    """
-    Calculates mortality rate: (Deceased Animals / Total Herd Size) * 100
-    """
-    # Total history of animals
-    total_query = select(func.count(models.Animal.animal_id)).where(models.Animal.farmer_id == farmer_id)
+async def get_mortality_rate(
+    farmer_id: int, 
+    db: AsyncSession = Depends(get_db), 
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    if current_user.farmer_id != farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    total_query = select(func.count(models.Animal.animal_id)).where(models.Animal.farmer_id == current_user.farmer_id)
     total_result = await db.execute(total_query)
     total_count = total_result.scalar() or 0
     
     if total_count == 0:
         return {"mortality_rate": 0}
 
-    # Count deceased
     deceased_query = select(func.count(models.Animal.animal_id)).where(
         and_(
-            models.Animal.farmer_id == farmer_id,
+            models.Animal.farmer_id == current_user.farmer_id,
             models.Animal.status == "Disposed",
             models.Animal.disposal_reason == "Deceased"
         )
@@ -92,16 +100,20 @@ async def get_mortality_rate(farmer_id: int, db: AsyncSession = Depends(get_db),
     }
 
 @router.get("/financial-summary")
-async def get_financial_summary(farmer_id: int, db: AsyncSession = Depends(get_db), current_user: models.Farmer = Depends(get_current_user)):
-    """
-    Returns net expenses grouped by category.
-    """
+async def get_financial_summary(
+    farmer_id: int, 
+    db: AsyncSession = Depends(get_db), 
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    if current_user.farmer_id != farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
     query = select(
         models.FinancialTransaction.category,
         func.sum(models.FinancialTransaction.amount).label("total_amount")
     ).where(
         and_(
-            models.FinancialTransaction.farmer_id == farmer_id,
+            models.FinancialTransaction.farmer_id == current_user.farmer_id,
             models.FinancialTransaction.type == "Expense"
         )
     ).group_by(models.FinancialTransaction.category)
@@ -115,37 +127,4 @@ async def get_financial_summary(farmer_id: int, db: AsyncSession = Depends(get_d
     return {
         "categories": summary,
         "total_expenses": total_expenses
-    }
-
-@router.get("/batch-performance/{pen_id}")
-async def get_batch_performance(pen_id: int, db: AsyncSession = Depends(get_db), current_user: models.Farmer = Depends(get_current_user)):
-    """
-    Returns financial performance for a specific batch (Pen).
-    """
-    # 1. Total Expenses for this Pen
-    expense_query = select(func.sum(models.FinancialTransaction.amount)).where(
-        and_(
-            models.FinancialTransaction.related_pen_id == pen_id,
-            models.FinancialTransaction.type == "Expense"
-        )
-    )
-    expense_result = await db.execute(expense_query)
-    total_expenses = expense_result.scalar() or 0
-    
-    # 2. Total Income for this Pen (e.g., individual animal sales from this pen, or milk production allocated)
-    # For now, let's look at records where related_pen_id is set for Income
-    income_query = select(func.sum(models.FinancialTransaction.amount)).where(
-        and_(
-            models.FinancialTransaction.related_pen_id == pen_id,
-            models.FinancialTransaction.type == "Income"
-        )
-    )
-    income_result = await db.execute(income_query)
-    total_income = income_result.scalar() or 0
-    
-    return {
-        "pen_id": pen_id,
-        "total_expenses": float(total_expenses),
-        "total_income": float(total_income),
-        "net_performance": float(total_income - total_expenses)
     }

@@ -10,6 +10,7 @@ import schemas
 from models import HealthRecord, Animal
 from schemas import HealthRecordCreate
 from ledger_sync import sync_operation_to_ledger
+from auth import get_current_user
 
 router = APIRouter(
     prefix="/health",
@@ -17,53 +18,83 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=schemas.HealthRecord, status_code=status.HTTP_201_CREATED)
-async def create_health_record(record: schemas.HealthRecordCreate, db: AsyncSession = Depends(get_db)):
+async def create_health_record(
+    record: schemas.HealthRecordCreate, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    # Fetch farmer_id from animal to verify ownership
+    result = await db.execute(select(models.Animal).where(models.Animal.animal_id == record.animal_id))
+    animal = result.scalars().first()
+    
+    if not animal or animal.farmer_id != current_user.farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized to create health records for this animal")
+
     new_record = models.HealthRecord(**record.dict())
     db.add(new_record)
     await db.flush()
     
-    # Fetch farmer_id from animal
-    result = await db.execute(select(models.Animal).where(models.Animal.animal_id == new_record.animal_id))
-    animal = result.scalars().first()
-    
-    if animal:
-        await sync_operation_to_ledger(
-            db=db,
-            farmer_id=animal.farmer_id,
-            amount=new_record.cost,
-            category="Veterinary",
-            description=f"Health treatment for {animal.name or animal.tag_number}: {new_record.condition}",
-            source_table="health_record",
-            source_id=new_record.record_id,
-            transaction_date=new_record.date,
-            related_animal_id=new_record.animal_id
-        )
+    await sync_operation_to_ledger(
+        db=db,
+        farmer_id=current_user.farmer_id,
+        amount=new_record.cost,
+        category="Veterinary",
+        description=f"Health treatment for {animal.name or animal.tag_number}: {new_record.condition}",
+        source_table="health_record",
+        source_id=new_record.record_id,
+        transaction_date=new_record.date,
+        related_animal_id=new_record.animal_id
+    )
     
     await db.commit()
     await db.refresh(new_record)
     return new_record
 
 @router.get("/animal/{animal_id}", response_model=List[schemas.HealthRecord])
-async def read_health_records(animal_id: int, db: AsyncSession = Depends(get_db)):
+async def read_health_records(
+    animal_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    # Verify animal ownership
+    anim_res = await db.execute(select(models.Animal).where(models.Animal.animal_id == animal_id))
+    animal = anim_res.scalars().first()
+    if not animal or animal.farmer_id != current_user.farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
     result = await db.execute(select(models.HealthRecord).where(models.HealthRecord.animal_id == animal_id))
     return result.scalars().all()
 
 @router.get("/farmer/{farmer_id}", response_model=List[schemas.HealthRecord])
-async def read_farmer_health_records(farmer_id: int, db: AsyncSession = Depends(get_db)):
+async def read_farmer_health_records(
+    farmer_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    if current_user.farmer_id != farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
     result = await db.execute(
         select(models.HealthRecord)
         .join(models.Animal, models.HealthRecord.animal_id == models.Animal.animal_id)
-        .where(models.Animal.farmer_id == farmer_id)
+        .where(models.Animal.farmer_id == current_user.farmer_id)
     )
     return result.scalars().all()
 
 # --- HEALTH INTELLIGENCE ENDPOINTS ---
 
 @router.get("/status-summary")
-async def get_health_summary(farmer_id: int, db: AsyncSession = Depends(get_db)):
+async def get_health_summary(
+    farmer_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    if current_user.farmer_id != farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
     sick_query = select(func.count(HealthRecord.record_id)).join(Animal).where(
         and_(
-            Animal.farmer_id == farmer_id,
+            Animal.farmer_id == current_user.farmer_id,
             HealthRecord.next_checkup_date == None,
             HealthRecord.date >= date.today() - timedelta(days=7)
         )
@@ -73,7 +104,7 @@ async def get_health_summary(farmer_id: int, db: AsyncSession = Depends(get_db))
 
     under_treatment_query = select(func.count(HealthRecord.record_id)).join(Animal).where(
         and_(
-            Animal.farmer_id == farmer_id,
+            Animal.farmer_id == current_user.farmer_id,
             HealthRecord.next_checkup_date >= date.today()
         )
     )
@@ -86,12 +117,19 @@ async def get_health_summary(farmer_id: int, db: AsyncSession = Depends(get_db))
     }
 
 @router.get("/sick")
-async def get_sick_animals(farmer_id: int, db: AsyncSession = Depends(get_db)):
+async def get_sick_animals(
+    farmer_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    if current_user.farmer_id != farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
     query = select(Animal, HealthRecord).join(
         HealthRecord, Animal.animal_id == HealthRecord.animal_id
     ).where(
         and_(
-            Animal.farmer_id == farmer_id,
+            Animal.farmer_id == current_user.farmer_id,
             HealthRecord.next_checkup_date == None,
             HealthRecord.date >= date.today() - timedelta(days=7)
         )
@@ -111,11 +149,24 @@ async def get_sick_animals(farmer_id: int, db: AsyncSession = Depends(get_db)):
     ]
 
 @router.post("/{record_id}/resolve")
-async def resolve_health_record(record_id: int, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(models.HealthRecord).where(models.HealthRecord.record_id == record_id))
+async def resolve_health_record(
+    record_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    result = await db.execute(
+        select(models.HealthRecord)
+        .join(models.Animal)
+        .where(
+            and_(
+                models.HealthRecord.record_id == record_id,
+                models.Animal.farmer_id == current_user.farmer_id
+            )
+        )
+    )
     record = result.scalars().first()
     if not record:
-        raise HTTPException(status_code=404, detail="Health record not found")
+        raise HTTPException(status_code=404, detail="Health record not found or not specialized")
     
     # Resolves the condition by scheduling a checkup today
     record.next_checkup_date = date.today()
@@ -124,12 +175,19 @@ async def resolve_health_record(record_id: int, db: AsyncSession = Depends(get_d
     return {"status": "resolved"}
 
 @router.get("/under-treatment")
-async def get_under_treatment_animals(farmer_id: int, db: AsyncSession = Depends(get_db)):
+async def get_under_treatment_animals(
+    farmer_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    if current_user.farmer_id != farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
     query = select(Animal, HealthRecord).join(
         HealthRecord, Animal.animal_id == HealthRecord.animal_id
     ).where(
         and_(
-            Animal.farmer_id == farmer_id,
+            Animal.farmer_id == current_user.farmer_id,
             HealthRecord.next_checkup_date >= date.today()
         )
     )
@@ -147,12 +205,19 @@ async def get_under_treatment_animals(farmer_id: int, db: AsyncSession = Depends
     ]
 
 @router.get("/recovered")
-async def get_recovered_animals(farmer_id: int, db: AsyncSession = Depends(get_db)):
+async def get_recovered_animals(
+    farmer_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    if current_user.farmer_id != farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
     query = select(Animal, HealthRecord).join(
         HealthRecord, Animal.animal_id == HealthRecord.animal_id
     ).where(
         and_(
-            Animal.farmer_id == farmer_id,
+            Animal.farmer_id == current_user.farmer_id,
             HealthRecord.next_checkup_date < date.today()
         )
     ).order_by(desc(HealthRecord.date))

@@ -6,37 +6,40 @@ from typing import List
 from database import get_db
 import models
 import schemas
-from ledger_sync import sync_operation_to_ledger
+from auth import get_current_user
 
 router = APIRouter(
     prefix="/labor",
-    tags=["Labor"]
+    tags=["Labor & Activities"]
 )
 
 @router.post("/", response_model=schemas.LaborActivity, status_code=status.HTTP_201_CREATED)
-async def create_labor_activity(activity: schemas.LaborActivityCreate, db: AsyncSession = Depends(get_db)):
+async def create_labor_activity(
+    activity: schemas.LaborActivityCreate, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    if activity.farmer_id != current_user.farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized to log activities for other farmers")
+        
     new_activity = models.LaborActivity(**activity.dict())
     db.add(new_activity)
-    await db.flush()
-    
-    await sync_operation_to_ledger(
-        db=db,
-        farmer_id=new_activity.farmer_id,
-        amount=new_activity.labor_cost,
-        category="Labor",
-        description=f"Labor activity: {new_activity.activity_type}",
-        source_table="labor_activity",
-        source_id=new_activity.activity_id,
-        transaction_date=new_activity.date,
-        related_animal_id=new_activity.related_animal_id,
-        related_pen_id=new_activity.related_pen_id
-    )
-    
     await db.commit()
     await db.refresh(new_activity)
     return new_activity
 
 @router.get("/farmer/{farmer_id}", response_model=List[schemas.LaborActivity])
-async def read_labor_activities(farmer_id: int, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(models.LaborActivity).where(models.LaborActivity.farmer_id == farmer_id))
+async def read_labor_activities(
+    farmer_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    if current_user.farmer_id != farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    result = await db.execute(
+        select(models.LaborActivity)
+        .where(models.LaborActivity.farmer_id == current_user.farmer_id)
+        .order_by(models.LaborActivity.date.desc())
+    )
     return result.scalars().all()

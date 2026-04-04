@@ -13,6 +13,11 @@ class ApiService {
     _farmerId = farmerId;
   }
 
+  static void logout() {
+    _token = null;
+    _farmerId = null;
+  }
+
   static int? get farmerId => _farmerId;
 
   static Map<String, String> get _headers => {
@@ -46,26 +51,31 @@ class ApiService {
   }
 
   static Future<List<Pen>> getPens(int farmerId) async {
-    final response = await http.get(Uri.parse('$baseUrl/animals/pens/farmer/$farmerId'), headers: _headers);
+    // Backend now verifies token matches farmerId
+    final response = await http.get(Uri.parse('$baseUrl/pens/?farmer_id=$farmerId'), headers: _headers);
     if (response.statusCode == 200) {
       Iterable l = jsonDecode(response.body);
       return List<Pen>.from(l.map((model) => Pen.fromJson(model)));
     } else {
-      throw Exception('Failed to load pens');
+      // Return empty list if unauthorized or failed instead of crashing dashboard
+      print("Failed to load pens: ${response.statusCode}");
+      return [];
     }
   }
 
   static Future<void> createPen(Map<String, dynamic> data) async {
-    await _post('animals/pens', data);
+    await _post('pens', data);
   }
 
   static Future<List<Animal>> getAnimals([int? farmerId]) async {
+    // Backend now scopes to current_user token automatically
     final response = await http.get(Uri.parse('$baseUrl/animals/'), headers: _headers);
     if (response.statusCode == 200) {
       Iterable l = jsonDecode(response.body);
       return List<Animal>.from(l.map((model) => Animal.fromJson(model)));
     } else {
-      throw Exception('Failed to load animals');
+      print("Failed to load animals: ${response.statusCode}");
+      return [];
     }
   }
 
@@ -74,19 +84,19 @@ class ApiService {
   static Future<Map<String, dynamic>> getFCR(int penId) async {
     final response = await http.get(Uri.parse('$baseUrl/reports/fcr/$penId'), headers: _headers);
     if (response.statusCode == 200) return jsonDecode(response.body);
-    throw Exception('Failed to load FCR');
+    return {"fcr": 0, "message": "N/A"};
   }
 
   static Future<Map<String, dynamic>> getMortalityRate(int farmerId) async {
     final response = await http.get(Uri.parse('$baseUrl/reports/mortality?farmer_id=$farmerId'), headers: _headers);
     if (response.statusCode == 200) return jsonDecode(response.body);
-    throw Exception('Failed to load mortality rate');
+    return {"mortality_rate": 0};
   }
 
   static Future<Map<String, dynamic>> getFinancialSummary(int farmerId) async {
     final response = await http.get(Uri.parse('$baseUrl/reports/financial-summary?farmer_id=$farmerId'), headers: _headers);
     if (response.statusCode == 200) return jsonDecode(response.body);
-    throw Exception('Failed to load financial summary');
+    return {"categories": {}, "total_expenses": 0};
   }
 
   static Future<void> createAnimal(Map<String, dynamic> data) async {
@@ -119,7 +129,7 @@ class ApiService {
       Iterable l = jsonDecode(response.body);
       return List<BreedingRecord>.from(l.map((model) => BreedingRecord.fromJson(model)));
     } else {
-      throw Exception('Failed to load breeding records');
+      return [];
     }
   }
 
@@ -137,17 +147,27 @@ class ApiService {
 
 
   static Future<void> createFarmer(Map<String, dynamic> data) async {
-    await _post('farmers', data);
+    // No trailing slash as per standard convention
+    final response = await http.post(
+      Uri.parse('$baseUrl/farmers/'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(data),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to register: ${response.body}');
+    }
   }
 
   static Future<void> _post(String endpoint, Map<String, dynamic> data) async {
+    // Unified endpoint logic: handle trailing slash correctly
+    final uri = endpoint.endsWith('/') ? '$baseUrl/$endpoint' : '$baseUrl/$endpoint/';
     final response = await http.post(
-      Uri.parse('$baseUrl/$endpoint/'),
+      Uri.parse(uri),
       headers: _headers,
       body: jsonEncode(data),
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Failed to create record in $endpoint (Status: ${response.statusCode}): ${response.body}');
+      throw Exception('Error in $endpoint (${response.statusCode}): ${response.body}');
     }
   }
 
@@ -158,7 +178,7 @@ class ApiService {
       body: jsonEncode(data),
     );
     if (response.statusCode != 200) {
-      throw Exception('Failed to update record in $endpoint (Status: ${response.statusCode}): ${response.body}');
+      throw Exception('Error in $endpoint (${response.statusCode}): ${response.body}');
     }
   }
 
@@ -173,22 +193,24 @@ class ApiService {
       final json = jsonDecode(response.body);
       return FinancialTransaction.fromJson(json);
     } else {
-      throw Exception('Failed to create transaction (Status: ${response.statusCode}): ${response.body}');
+      throw Exception('Failed to create transaction: ${response.body}');
     }
   }
 
   static Future<List<HealthEvent>> getRecentHealthEvents() async {
-    // TODO: Implement backend endpoint for all/recent health events
+    // This is now covered by getAllHealthEvents
     return [];
   }
 
   static Future<List<FinancialTransaction>> getFinancialTransactions([int? farmerId]) async {
-    final response = await http.get(Uri.parse('$baseUrl/finance/farmer/${farmerId ?? _farmerId ?? 1}'), headers: _headers);
+    final id = farmerId ?? _farmerId;
+    if (id == null) return [];
+    final response = await http.get(Uri.parse('$baseUrl/finance/farmer/$id'), headers: _headers);
     if (response.statusCode == 200) {
       Iterable l = jsonDecode(response.body);
       return List<FinancialTransaction>.from(l.map((json) => FinancialTransaction.fromJson(json)));
     } else {
-      throw Exception('Failed to load transactions');
+      return [];
     }
   }
 
@@ -198,7 +220,7 @@ class ApiService {
       Iterable l = jsonDecode(response.body);
       return List<HealthEvent>.from(l.map((model) => HealthEvent.fromJson(model)));
     } else {
-      throw Exception('Failed to load health events');
+      return [];
     }
   }
 
@@ -215,7 +237,7 @@ class ApiService {
       Iterable l = jsonDecode(response.body);
       return List<HealthEvent>.from(l.map((model) => HealthEvent.fromJson(model)));
     }
-    throw Exception('Failed to load farm health records');
+    return [];
   }
 
   static Future<List<FeedLog>> getPenFeedLogs(int farmerId) async {
@@ -224,7 +246,7 @@ class ApiService {
       Iterable l = jsonDecode(response.body);
       return List<FeedLog>.from(l.map((model) => FeedLog.fromJson(model)));
     }
-    throw Exception('Failed to load pen feed logs');
+    return [];
   }
 
   static Future<List<IndividualFeedLog>> getIndividualFeedLogs(int farmerId) async {
@@ -233,7 +255,7 @@ class ApiService {
       Iterable l = jsonDecode(response.body);
       return List<IndividualFeedLog>.from(l.map((model) => IndividualFeedLog.fromJson(model)));
     }
-    throw Exception('Failed to load individual feed logs');
+    return [];
   }
 
   static Future<List<MilkProduction>> getAllMilkProduction(int farmerId) async {
@@ -242,7 +264,7 @@ class ApiService {
       Iterable l = jsonDecode(response.body);
       return List<MilkProduction>.from(l.map((model) => MilkProduction.fromJson(model)));
     }
-    throw Exception('Failed to load milk production');
+    return [];
   }
 
   static Future<List<WeightRecord>> getAllWeightRecords(int farmerId) async {
@@ -251,7 +273,7 @@ class ApiService {
       Iterable l = jsonDecode(response.body);
       return List<WeightRecord>.from(l.map((model) => WeightRecord.fromJson(model)));
     }
-    throw Exception('Failed to load weight records');
+    return [];
   }
 
   static Future<List<BreedingRecord>> getAllBreedingRecords(int farmerId) async {
@@ -260,7 +282,7 @@ class ApiService {
       Iterable l = jsonDecode(response.body);
       return List<BreedingRecord>.from(l.map((model) => BreedingRecord.fromJson(model)));
     }
-    throw Exception('Failed to load breeding records');
+    return [];
   }
 
   static Future<List<LaborActivity>> getAllLaborActivities(int farmerId) async {
@@ -269,7 +291,7 @@ class ApiService {
       Iterable l = jsonDecode(response.body);
       return List<LaborActivity>.from(l.map((model) => LaborActivity.fromJson(model)));
     }
-    throw Exception('Failed to load labor activities');
+    return [];
   }
 
   // --- DECISION SUPPORT ENDPOINTS ---
@@ -277,43 +299,31 @@ class ApiService {
   static Future<Map<String, dynamic>> getBreedingSummary(int farmerId) async {
     final response = await http.get(Uri.parse('$baseUrl/production/breeding-summary?farmer_id=$farmerId'), headers: _headers);
     if (response.statusCode == 200) return jsonDecode(response.body);
-    throw Exception('Failed to load breeding summary');
+    return {"pregnant": 0, "due_soon": 0, "failed": 0};
   }
 
   static Future<List<dynamic>> getPregnantAnimals(int farmerId) async {
     final response = await http.get(Uri.parse('$baseUrl/production/breeding/pregnant?farmer_id=$farmerId'), headers: _headers);
     if (response.statusCode == 200) return jsonDecode(response.body);
-    throw Exception('Failed to load pregnant animals');
-  }
-
-  static Future<List<dynamic>> getDueSoonAnimals(int farmerId) async {
-    final response = await http.get(Uri.parse('$baseUrl/production/breeding/due-soon?farmer_id=$farmerId'), headers: _headers);
-    if (response.statusCode == 200) return jsonDecode(response.body);
-    throw Exception('Failed to load due-soon animals');
-  }
-
-  static Future<List<dynamic>> getFailedBreedingAnimals(int farmerId) async {
-    final response = await http.get(Uri.parse('$baseUrl/production/breeding/failed?farmer_id=$farmerId'), headers: _headers);
-    if (response.statusCode == 200) return jsonDecode(response.body);
-    throw Exception('Failed to load failed breeding list');
+    return [];
   }
 
   static Future<Map<String, dynamic>> getHealthSummary(int farmerId) async {
     final response = await http.get(Uri.parse('$baseUrl/health/status-summary?farmer_id=$farmerId'), headers: _headers);
     if (response.statusCode == 200) return jsonDecode(response.body);
-    throw Exception('Failed to load health summary');
+    return {"sick": 0, "under_treatment": 0};
   }
 
   static Future<List<dynamic>> getSickAnimals(int farmerId) async {
     final response = await http.get(Uri.parse('$baseUrl/health/sick?farmer_id=$farmerId'), headers: _headers);
     if (response.statusCode == 200) return jsonDecode(response.body);
-    throw Exception('Failed to load sick animals');
+    return [];
   }
 
   static Future<List<dynamic>> getUnderTreatmentAnimals(int farmerId) async {
     final response = await http.get(Uri.parse('$baseUrl/health/under-treatment?farmer_id=$farmerId'), headers: _headers);
     if (response.statusCode == 200) return jsonDecode(response.body);
-    throw Exception('Failed to load animals under treatment');
+    return [];
   }
 
   static Future<List<Alert>> getAlerts(int farmerId) async {
@@ -322,7 +332,7 @@ class ApiService {
       Iterable l = jsonDecode(response.body);
       return List<Alert>.from(l.map((json) => Alert.fromJson(json)));
     }
-    throw Exception('Failed to load alerts');
+    return [];
   }
 
   static Future<void> dismissAlert(int alertId) async {
@@ -341,33 +351,4 @@ class ApiService {
     }
   }
 
-  static Future<void> resolveHealthRecord(int recordId) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/health/$recordId/resolve'),
-      headers: _headers,
-    );
-    if (response.statusCode != 200) {
-      throw Exception('Failed to resolve health record: ${response.body}');
-    }
-  }
-
-  static Future<void> markBreedingPregnant(int breedingId) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/breeding/$breedingId/pregnant'),
-      headers: _headers,
-    );
-    if (response.statusCode != 200) {
-      throw Exception('Failed to mark breeding as pregnant: ${response.body}');
-    }
-  }
-
-  static Future<void> markBreedingCalved(int breedingId) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/breeding/$breedingId/calved'),
-      headers: _headers,
-    );
-    if (response.statusCode != 200) {
-      throw Exception('Failed to mark breeding as calved: ${response.body}');
-    }
-  }
 }
