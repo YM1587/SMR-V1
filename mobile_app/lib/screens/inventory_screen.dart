@@ -28,8 +28,9 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
   Future<void> _loadData() async {
     try {
-      final pens = await ApiService.getPens(1); // Pass farmer ID
-      final animals = await ApiService.getAnimals(1);
+      final farmerId = ApiService.farmerId ?? 1;
+      final pens = await ApiService.getPens(farmerId); // Pass farmer ID
+      final animals = await ApiService.getAnimals(farmerId);
       
       setState(() {
         _pens = pens;
@@ -56,7 +57,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
   void _showAddAnimalDialog() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AnimalForm(farmerId: 1)),
+      MaterialPageRoute(builder: (context) => AnimalForm(farmerId: ApiService.farmerId ?? 1)),
     ).then((_) => _loadData()); // Refresh after adding
   }
 
@@ -187,7 +188,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AnimalForm(farmerId: 1, animal: animal),
+                  builder: (context) => AnimalForm(farmerId: ApiService.farmerId ?? 1, animal: animal),
                 ),
               );
               _loadData();

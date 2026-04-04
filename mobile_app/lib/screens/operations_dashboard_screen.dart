@@ -12,7 +12,7 @@ class OperationsDashboardScreen extends StatefulWidget {
 }
 
 class _OperationsDashboardScreenState extends State<OperationsDashboardScreen> {
-  final int farmerId = 1;
+  final int farmerId = ApiService.farmerId ?? 1;
   bool _isLoading = true;
 
   List<Animal> _animals = [];

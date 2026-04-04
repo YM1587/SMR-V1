@@ -13,6 +13,8 @@ class ApiService {
     _farmerId = farmerId;
   }
 
+  static int? get farmerId => _farmerId;
+
   static Map<String, String> get _headers => {
     "Content-Type": "application/json",
     if (_token != null) "Authorization": "Bearer $_token",

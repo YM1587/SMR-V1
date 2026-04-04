@@ -16,7 +16,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  final int farmerId = 1;
+  final int farmerId = ApiService.farmerId ?? 1;
   bool _isLoading = true;
   bool _showWarnings = false;
 

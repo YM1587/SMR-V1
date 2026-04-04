@@ -29,7 +29,8 @@ class _FinanceScreenState extends State<FinanceScreen> {
 
   Future<void> _loadTransactions() async {
     try {
-      final data = await ApiService.getFinancialTransactions();
+      final farmerId = ApiService.farmerId ?? 1;
+      final data = await ApiService.getFinancialTransactions(farmerId);
       setState(() {
         _allTransactions = data;
         _filterTransactions();
@@ -104,7 +105,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
             onPressed: () async {
               await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const FinancialTransactionForm(farmerId: 1)),
+                MaterialPageRoute(builder: (context) => FinancialTransactionForm(farmerId: ApiService.farmerId ?? 1)),
               );
               _loadTransactions();
             },

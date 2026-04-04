@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/inventory_screen.dart';
 import 'screens/operations_dashboard_screen.dart';
@@ -11,7 +12,6 @@ import 'screens/forms/feed_log_form.dart';
 import 'screens/forms/health_record_form.dart';
 import 'screens/forms/labor_activity_form.dart';
 import 'screens/forms/financial_transaction_form.dart';
-import 'screens/forms/farmer_form.dart';
 
 void main() {
   runApp(const SmartRanchApp());
@@ -29,7 +29,7 @@ class SmartRanchApp extends StatelessWidget {
         primarySwatch: Colors.green,
         useMaterial3: true,
       ),
-      home: const MainScreen(),
+      home: const LoginScreen(),
     );
   }
 }
@@ -64,14 +64,14 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 8.0,
-        height: 70, // Increased height to fit labels
+        height: 70,
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             _buildNavItem(0, Icons.dashboard, 'Home'),
             _buildNavItem(1, Icons.pets, 'Animals'),
-            const SizedBox(width: 48), // Space for FAB
+            const SizedBox(width: 48), 
             _buildNavItem(2, Icons.analytics, 'Operations'),
             _buildNavItem(3, Icons.attach_money, 'Finance'),
           ],
@@ -110,7 +110,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _showActionSheet(BuildContext context) {
-    const int farmerId = 1; // Default farmerId
+    final int farmerId = ApiService.farmerId ?? 1; 
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
@@ -130,7 +130,6 @@ class _MainScreenState extends State<MainScreen> {
               _buildActionTile(context, 'Health', Icons.medical_services, () => const HealthRecordForm(farmerId: farmerId)),
               _buildActionTile(context, 'Labor', Icons.work, () => const LaborActivityForm(farmerId: farmerId)),
               _buildActionTile(context, 'Finance', Icons.monetization_on, () => const FinancialTransactionForm(farmerId: farmerId)),
-              _buildActionTile(context, 'Settings', Icons.settings, () => const FarmerForm()),
             ],
           ),
         );
