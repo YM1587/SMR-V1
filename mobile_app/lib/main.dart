@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'services/api_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/inventory_screen.dart';
@@ -122,14 +123,14 @@ class _MainScreenState extends State<MainScreen> {
             runSpacing: 16,
             alignment: WrapAlignment.center,
             children: [
-              _buildActionTile(context, 'Add Animal', Icons.pets, () => const AnimalForm(farmerId: farmerId)),
-              _buildActionTile(context, 'Milk Record', Icons.water_drop, () => const MilkProductionForm(farmerId: farmerId)),
-              _buildActionTile(context, 'Weight Record', Icons.monitor_weight, () => const WeightRecordForm(farmerId: farmerId)),
-              _buildActionTile(context, 'Breeding', Icons.favorite, () => const BreedingRecordForm(farmerId: farmerId)),
-              _buildActionTile(context, 'Feed Log', Icons.grass, () => const FeedLogForm(farmerId: farmerId)),
-              _buildActionTile(context, 'Health', Icons.medical_services, () => const HealthRecordForm(farmerId: farmerId)),
-              _buildActionTile(context, 'Labor', Icons.work, () => const LaborActivityForm(farmerId: farmerId)),
-              _buildActionTile(context, 'Finance', Icons.monetization_on, () => const FinancialTransactionForm(farmerId: farmerId)),
+              _buildActionTile(context, 'Add Animal', Icons.pets, () => AnimalForm(farmerId: farmerId)),
+              _buildActionTile(context, 'Milk Record', Icons.water_drop, () => MilkProductionForm(farmerId: farmerId)),
+              _buildActionTile(context, 'Weight Record', Icons.monitor_weight, () => WeightRecordForm(farmerId: farmerId)),
+              _buildActionTile(context, 'Breeding', Icons.favorite, () => BreedingRecordForm(farmerId: farmerId)),
+              _buildActionTile(context, 'Feed Log', Icons.grass, () => FeedLogForm(farmerId: farmerId)),
+              _buildActionTile(context, 'Health', Icons.medical_services, () => HealthRecordForm(farmerId: farmerId)),
+              _buildActionTile(context, 'Labor', Icons.work, () => LaborActivityForm(farmerId: farmerId)),
+              _buildActionTile(context, 'Finance', Icons.monetization_on, () => FinancialTransactionForm(farmerId: farmerId)),
             ],
           ),
         );
