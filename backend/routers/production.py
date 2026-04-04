@@ -104,6 +104,25 @@ async def read_farmer_weight_records(
     )
     return result.scalars().all()
 
+@router.get("/weight/animal/{animal_id}", response_model=List[schemas.WeightRecord])
+async def read_animal_weight_records(
+    animal_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    # Verify animal ownership
+    anim_res = await db.execute(select(models.Animal).where(models.Animal.animal_id == animal_id))
+    animal = anim_res.scalars().first()
+    if not animal or animal.farmer_id != current_user.farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    result = await db.execute(
+        select(models.WeightRecord)
+        .where(models.WeightRecord.animal_id == animal_id)
+        .order_by(models.WeightRecord.date.desc())
+    )
+    return result.scalars().all()
+
 # --- BREEDING RECORDS ---
 
 @router.post("/breeding", response_model=schemas.BreedingRecord, status_code=status.HTTP_201_CREATED)
@@ -137,6 +156,25 @@ async def read_farmer_breeding_records(
         select(models.BreedingRecord)
         .join(models.Animal, models.BreedingRecord.female_id == models.Animal.animal_id)
         .where(models.Animal.farmer_id == current_user.farmer_id)
+        .order_by(models.BreedingRecord.breeding_date.desc())
+    )
+    return result.scalars().all()
+
+@router.get("/breeding/animal/{animal_id}/", response_model=List[schemas.BreedingRecord])
+async def read_animal_breeding_records(
+    animal_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    # Verify animal ownership
+    anim_res = await db.execute(select(models.Animal).where(models.Animal.animal_id == animal_id))
+    animal = anim_res.scalars().first()
+    if not animal or animal.farmer_id != current_user.farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    result = await db.execute(
+        select(models.BreedingRecord)
+        .where(models.BreedingRecord.female_id == animal_id)
         .order_by(models.BreedingRecord.breeding_date.desc())
     )
     return result.scalars().all()
@@ -256,7 +294,7 @@ async def get_pending_breeding(
         } for a, br in result.all()
     ]
 
-@router.post("/breeding/{breeding_id}/failed")
+@router.post("/breeding/{breeding_id}/failed/")
 async def mark_breeding_failed(
     breeding_id: int, 
     db: AsyncSession = Depends(get_db),
@@ -314,7 +352,7 @@ async def get_due_soon_animals(
         } for a, br in result.all()
     ]
 
-@router.post("/breeding/{breeding_id}/pregnant")
+@router.post("/breeding/{breeding_id}/pregnant/")
 async def mark_breeding_pregnant(
     breeding_id: int, 
     db: AsyncSession = Depends(get_db),
@@ -342,7 +380,7 @@ async def mark_breeding_pregnant(
     await db.refresh(record)
     return {"status": "success", "expected_calving_date": record.expected_calving_date}
 
-@router.post("/breeding/{breeding_id}/calved")
+@router.post("/breeding/{breeding_id}/calved/")
 async def mark_breeding_calved(
     breeding_id: int, 
     db: AsyncSession = Depends(get_db),

@@ -31,8 +31,14 @@ class _BreedingHistoryScreenState extends State<BreedingHistoryScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Error: ${e.toString().replaceAll('Exception: ', '')}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ));
+      }
     }
   }
 
@@ -81,8 +87,12 @@ class _BreedingHistoryScreenState extends State<BreedingHistoryScreen> {
                                 children: [
                                   ElevatedButton.icon(
                                     onPressed: () async {
-                                      await ApiService.markBreedingPregnant(record.id);
-                                      _loadRecords();
+                                      try {
+                                        await ApiService.markBreedingPregnant(record.id);
+                                        _loadRecords();
+                                      } catch (e) {
+                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+                                      }
                                     },
                                     icon: const Icon(Icons.check_circle, size: 14),
                                     label: const Text('Pregnant', style: TextStyle(fontSize: 11)),
@@ -91,8 +101,12 @@ class _BreedingHistoryScreenState extends State<BreedingHistoryScreen> {
                                   const SizedBox(width: 8),
                                   OutlinedButton.icon(
                                     onPressed: () async {
-                                      await ApiService.markBreedingFailed(record.id);
-                                      _loadRecords();
+                                      try {
+                                        await ApiService.markBreedingFailed(record.id);
+                                        _loadRecords();
+                                      } catch (e) {
+                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+                                      }
                                     },
                                     icon: const Icon(Icons.cancel, size: 14),
                                     label: const Text('Failed', style: TextStyle(fontSize: 11)),
@@ -103,8 +117,12 @@ class _BreedingHistoryScreenState extends State<BreedingHistoryScreen> {
                             else if (record.pregnancyStatus == 'Pregnant')
                               ElevatedButton.icon(
                                 onPressed: () async {
-                                  await ApiService.markBreedingCalved(record.id);
-                                  _loadRecords();
+                                  try {
+                                    await ApiService.markBreedingCalved(record.id);
+                                    _loadRecords();
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+                                  }
                                 },
                                 icon: const Icon(Icons.child_care, size: 14),
                                 label: const Text('Mark Calved', style: TextStyle(fontSize: 11)),

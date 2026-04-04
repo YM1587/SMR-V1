@@ -122,8 +122,8 @@ class ApiService {
   }
 
   static Future<void> markBreedingFailed(int breedingId) async {
-    final response = await http.post(Uri.parse('$baseUrl/production/breeding/$breedingId/failed'), headers: _headers);
-    if (response.statusCode != 200) throw Exception('Failed to mark breeding as failed');
+    final response = await http.post(Uri.parse('$baseUrl/production/breeding/$breedingId/failed/'), headers: _headers);
+    if (response.statusCode != 200) throw Exception('Failed to mark breeding as failed: ${response.statusCode}');
   }
 
   static Future<void> createBreedingRecord(BreedingRecord record) async {
@@ -140,7 +140,7 @@ class ApiService {
       Iterable l = jsonDecode(response.body);
       return List<BreedingRecord>.from(l.map((model) => BreedingRecord.fromJson(model)));
     } else {
-      return [];
+      throw Exception('Failed to load breeding records: ${response.statusCode}');
     }
   }
 
@@ -380,21 +380,21 @@ class ApiService {
 
   static Future<void> markBreedingPregnant(int breedingId) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/production/breeding/$breedingId/pregnant'),
+      Uri.parse('$baseUrl/production/breeding/$breedingId/pregnant/'),
       headers: _headers,
     );
     if (response.statusCode != 200) {
-      throw Exception('Failed to mark breeding as pregnant: ${response.body}');
+      throw Exception('Failed to mark breeding as pregnant: ${response.statusCode}');
     }
   }
 
   static Future<void> markBreedingCalved(int breedingId) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/production/breeding/$breedingId/calved'),
+      Uri.parse('$baseUrl/production/breeding/$breedingId/calved/'),
       headers: _headers,
     );
     if (response.statusCode != 200) {
-      throw Exception('Failed to mark breeding as calved: ${response.body}');
+      throw Exception('Failed to mark breeding as calved: ${response.statusCode}');
     }
   }
 }

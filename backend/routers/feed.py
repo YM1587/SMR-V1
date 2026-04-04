@@ -82,3 +82,22 @@ async def read_farmer_individual_feed_logs(
         .order_by(models.IndividualFeedLog.date.desc())
     )
     return result.scalars().all()
+
+@router.get("/individual/animal/{animal_id}", response_model=List[schemas.IndividualFeedLog])
+async def read_animal_individual_feed_logs(
+    animal_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.Farmer = Depends(get_current_user)
+):
+    # Verify animal ownership
+    anim_res = await db.execute(select(models.Animal).where(models.Animal.animal_id == animal_id))
+    animal = anim_res.scalars().first()
+    if not animal or animal.farmer_id != current_user.farmer_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    result = await db.execute(
+        select(models.IndividualFeedLog)
+        .where(models.IndividualFeedLog.animal_id == animal_id)
+        .order_by(models.IndividualFeedLog.date.desc())
+    )
+    return result.scalars().all()
