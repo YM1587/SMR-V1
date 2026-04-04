@@ -299,7 +299,7 @@ class PerformanceCache(PerformanceCacheBase):
     calculated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # --- ALERT SCHEMAS ---
 class AlertBase(BaseModel):
@@ -319,4 +319,4 @@ class Alert(AlertBase):
     dismissed_at: Optional[datetime] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True

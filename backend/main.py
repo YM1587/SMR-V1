@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from database import engine, Base
-from routers import animals, health, feed, finance, farmer, production, labor, pens, alerts
+from routers import animals, health, feed, finance, farmer, production, labor, pens, alerts, reports
 import asyncio
 
 from fastapi.middleware.cors import CORSMiddleware
