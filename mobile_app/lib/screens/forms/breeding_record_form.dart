@@ -5,7 +5,8 @@ import '../../models/models.dart';
 class BreedingRecordForm extends StatefulWidget {
   final int farmerId;
   final BreedingRecord? existingRecord;
-  const BreedingRecordForm({Key? key, required this.farmerId, this.existingRecord}) : super(key: key);
+  final int? femaleInitialId;
+  const BreedingRecordForm({Key? key, required this.farmerId, this.existingRecord, this.femaleInitialId}) : super(key: key);
 
   @override
   _BreedingRecordFormState createState() => _BreedingRecordFormState();
@@ -49,6 +50,8 @@ class _BreedingRecordFormState extends State<BreedingRecordForm> {
       _selectedOffspringId = widget.existingRecord!.offspringId;
       _notesController.text = widget.existingRecord!.notes ?? '';
       _costController.text = widget.existingRecord!.cost.toString();
+    } else if (widget.femaleInitialId != null) {
+      _selectedFemaleId = widget.femaleInitialId;
     }
     _loadAnimals();
   }

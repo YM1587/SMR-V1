@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/models.dart';
 import 'forms/breeding_record_form.dart';
+import 'forms/animal_form.dart';
 
 class BreedingHistoryScreen extends StatefulWidget {
   final Animal animal;
@@ -61,13 +62,13 @@ class _BreedingHistoryScreenState extends State<BreedingHistoryScreen> {
                               children: [
                                 const Text('Status: ', style: TextStyle(fontSize: 12)),
                                 Text(
-                                  record.pregnancyStatus,
+                                  record.pregnancyStatus ?? 'Unknown',
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    color: record.pregnancyStatus == 'Pregnant' ? Colors.purple : 
-                                           record.pregnancyStatus == 'Failed' ? Colors.red : 
-                                           record.pregnancyStatus == 'Calved' ? Colors.green : Colors.grey,
+                                    color: (record.pregnancyStatus ?? 'Unknown') == 'Pregnant' ? Colors.purple : 
+                                           (record.pregnancyStatus ?? 'Unknown') == 'Failed' ? Colors.red : 
+                                           (record.pregnancyStatus ?? 'Unknown') == 'Calved' ? Colors.green : Colors.grey,
                                   ),
                                 ),
                               ],
@@ -80,7 +81,7 @@ class _BreedingHistoryScreenState extends State<BreedingHistoryScreen> {
                                 children: [
                                   ElevatedButton.icon(
                                     onPressed: () async {
-                                      await ApiService.markBreedingPregnant(record.breedingId);
+                                      await ApiService.markBreedingPregnant(record.id);
                                       _loadRecords();
                                     },
                                     icon: const Icon(Icons.check_circle, size: 14),
@@ -90,7 +91,7 @@ class _BreedingHistoryScreenState extends State<BreedingHistoryScreen> {
                                   const SizedBox(width: 8),
                                   OutlinedButton.icon(
                                     onPressed: () async {
-                                      await ApiService.markBreedingFailed(record.breedingId);
+                                      await ApiService.markBreedingFailed(record.id);
                                       _loadRecords();
                                     },
                                     icon: const Icon(Icons.cancel, size: 14),
@@ -102,7 +103,7 @@ class _BreedingHistoryScreenState extends State<BreedingHistoryScreen> {
                             else if (record.pregnancyStatus == 'Pregnant')
                               ElevatedButton.icon(
                                 onPressed: () async {
-                                  await ApiService.markBreedingCalved(record.breedingId);
+                                  await ApiService.markBreedingCalved(record.id);
                                   _loadRecords();
                                 },
                                 icon: const Icon(Icons.child_care, size: 14),
