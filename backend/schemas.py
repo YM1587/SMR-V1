@@ -217,6 +217,7 @@ class HealthRecordBase(BaseModel):
     condition: str
     symptoms: str
     treatment: str
+    outcome: Optional[str] = None # Added for FR4
     cost: Optional[Decimal] = Decimal(0)
     vet_name: Optional[str] = None
     next_checkup_date: Optional[date] = None

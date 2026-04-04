@@ -25,6 +25,7 @@ app.include_router(labor.router)
 app.include_router(finance.router)
 app.include_router(pens.router)
 app.include_router(alerts.router)
+app.include_router(reports.router)
 
 @app.on_event("startup")
 async def startup():

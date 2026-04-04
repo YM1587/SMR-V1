@@ -5,6 +5,7 @@ import '../services/api_service.dart';
 import '../models/models.dart';
 import 'finance_screen.dart';
 import 'operations_dashboard_screen.dart';
+import 'reports_screen.dart';
 
 
 class DashboardScreen extends StatefulWidget {
@@ -44,7 +45,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() => _isLoading = true);
     try {
       final results = await Future.wait([
-        ApiService.getAnimals(farmerId),
+        ApiService.getAnimals(),
         ApiService.getAllHealthEvents(farmerId),
         ApiService.getPenFeedLogs(farmerId),
         ApiService.getIndividualFeedLogs(farmerId),
@@ -98,8 +99,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  // Logic removed as it's now handled by the backend /alerts endpoint
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -137,6 +136,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
       ),
       actions: [
+        IconButton(
+          icon: const Icon(Icons.bar_chart),
+          tooltip: 'Reports',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ReportsScreen(farmerId: farmerId)),
+            );
+          },
+        ),
         IconButton(
           icon: const Icon(Icons.refresh),
           onPressed: _fetchAllData,

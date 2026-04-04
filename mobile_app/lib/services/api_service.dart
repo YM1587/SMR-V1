@@ -5,9 +5,20 @@ import '../models/models.dart';
 import 'package:flutter/foundation.dart';
 
 class ApiService {
+  static String? _token;
+  static int? _farmerId;
+
+  static void setAuth(String token, int farmerId) {
+    _token = token;
+    _farmerId = farmerId;
+  }
+
+  static Map<String, String> get _headers => {
+    "Content-Type": "application/json",
+    if (_token != null) "Authorization": "Bearer $_token",
+  };
+
   // Use 10.0.2.2 for Android emulator to access localhost of the host machine.
-  // Use localhost for Web.
-  // If using a real device, use the IP address of your machine via --dart-define=BASE_URL=...
   static String get baseUrl {
     if (kIsWeb) {
       return 'http://127.0.0.1:8000';
@@ -15,8 +26,25 @@ class ApiService {
     return 'http://10.0.2.2:8000';
   }
 
+  static Future<Map<String, dynamic>> login(String username, String password) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/farmers/token'),
+      body: {
+        'username': username,
+        'password': password,
+      },
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      setAuth(data['access_token'], data['farmer_id']);
+      return data;
+    } else {
+      throw Exception('Login failed: ${response.body}');
+    }
+  }
+
   static Future<List<Pen>> getPens(int farmerId) async {
-    final response = await http.get(Uri.parse('$baseUrl/pens/?farmer_id=$farmerId'));
+    final response = await http.get(Uri.parse('$baseUrl/animals/pens/farmer/$farmerId'), headers: _headers);
     if (response.statusCode == 200) {
       Iterable l = jsonDecode(response.body);
       return List<Pen>.from(l.map((model) => Pen.fromJson(model)));
@@ -26,21 +54,37 @@ class ApiService {
   }
 
   static Future<void> createPen(Map<String, dynamic> data) async {
-    await _post('pens', data);
+    await _post('animals/pens', data);
   }
 
-  static Future<List<Animal>> getAnimals([int? farmerId]) async {
-    String url = '$baseUrl/animals/';
-    if (farmerId != null) {
-      url += '?farmer_id=$farmerId';
-    }
-    final response = await http.get(Uri.parse(url));
+  static Future<List<Animal>> getAnimals() async {
+    final response = await http.get(Uri.parse('$baseUrl/animals/'), headers: _headers);
     if (response.statusCode == 200) {
       Iterable l = jsonDecode(response.body);
       return List<Animal>.from(l.map((model) => Animal.fromJson(model)));
     } else {
       throw Exception('Failed to load animals');
     }
+  }
+
+  // --- REPORTING ENDPOINTS ---
+
+  static Future<Map<String, dynamic>> getFCR(int penId) async {
+    final response = await http.get(Uri.parse('$baseUrl/reports/fcr/$penId'), headers: _headers);
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    throw Exception('Failed to load FCR');
+  }
+
+  static Future<Map<String, dynamic>> getMortalityRate(int farmerId) async {
+    final response = await http.get(Uri.parse('$baseUrl/reports/mortality?farmer_id=$farmerId'), headers: _headers);
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    throw Exception('Failed to load mortality rate');
+  }
+
+  static Future<Map<String, dynamic>> getFinancialSummary(int farmerId) async {
+    final response = await http.get(Uri.parse('$baseUrl/reports/financial-summary?farmer_id=$farmerId'), headers: _headers);
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    throw Exception('Failed to load financial summary');
   }
 
   static Future<void> createAnimal(Map<String, dynamic> data) async {
@@ -256,25 +300,25 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> getHealthSummary(int farmerId) async {
-    final response = await http.get(Uri.parse('$baseUrl/health/status-summary?farmer_id=$farmerId'));
+    final response = await http.get(Uri.parse('$baseUrl/health/status-summary?farmer_id=$farmerId'), headers: _headers);
     if (response.statusCode == 200) return jsonDecode(response.body);
     throw Exception('Failed to load health summary');
   }
 
   static Future<List<dynamic>> getSickAnimals(int farmerId) async {
-    final response = await http.get(Uri.parse('$baseUrl/health/sick?farmer_id=$farmerId'));
+    final response = await http.get(Uri.parse('$baseUrl/health/sick?farmer_id=$farmerId'), headers: _headers);
     if (response.statusCode == 200) return jsonDecode(response.body);
     throw Exception('Failed to load sick animals');
   }
 
   static Future<List<dynamic>> getUnderTreatmentAnimals(int farmerId) async {
-    final response = await http.get(Uri.parse('$baseUrl/health/under-treatment?farmer_id=$farmerId'));
+    final response = await http.get(Uri.parse('$baseUrl/health/under-treatment?farmer_id=$farmerId'), headers: _headers);
     if (response.statusCode == 200) return jsonDecode(response.body);
     throw Exception('Failed to load animals under treatment');
   }
 
   static Future<List<Alert>> getAlerts(int farmerId) async {
-    final response = await http.get(Uri.parse('$baseUrl/alerts/?farmer_id=$farmerId'));
+    final response = await http.get(Uri.parse('$baseUrl/alerts/?farmer_id=$farmerId'), headers: _headers);
     if (response.statusCode == 200) {
       Iterable l = jsonDecode(response.body);
       return List<Alert>.from(l.map((json) => Alert.fromJson(json)));

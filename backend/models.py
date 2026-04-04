@@ -167,6 +167,7 @@ class HealthRecord(Base):
     condition = Column(String(100), nullable=False)
     symptoms = Column(Text, nullable=False)
     treatment = Column(Text, nullable=False)
+    outcome = Column(String(50)) # Added for FR4
     cost = Column(Numeric(10, 2), default=0)
     vet_name = Column(String(100))
     next_checkup_date = Column(Date)
