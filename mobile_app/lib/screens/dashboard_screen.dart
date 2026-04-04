@@ -158,7 +158,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final totalAnimals = _animals.length;
     final activeAnimals = _animals.where((a) => a.status == 'Active').length;
     final sickAnimals = _healthEvents.where((e) {
-      final date = DateTime.tryParse(e.eventDate);
+      final date = DateTime.tryParse(e.date);
       return date != null && date.isAfter(DateTime.now().subtract(const Duration(days: 7)));
     }).length;
     final pregnantAnimals = _breedingRecords.where((r) => r.pregnancyStatus == 'Pregnant').length;

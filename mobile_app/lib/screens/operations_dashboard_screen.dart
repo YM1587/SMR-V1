@@ -167,8 +167,8 @@ class _OperationsDashboardScreenState extends State<OperationsDashboardScreen> {
       final now = DateTime.now();
       final last7Days = now.subtract(const Duration(days: 7));
       
-      final recentFeed = _penFeedLogs.where((l) => DateTime.tryParse(l.logDate)?.isAfter(last7Days) ?? false).fold(0.0, (s, i) => s + i.cost);
-      final prevFeed = _penFeedLogs.where((l) => (DateTime.tryParse(l.logDate)?.isBefore(last7Days) ?? false) && (DateTime.tryParse(l.logDate)?.isAfter(now.subtract(const Duration(days: 14))) ?? false)).fold(0.0, (s, i) => s + i.cost);
+      final recentFeed = _penFeedLogs.where((l) => DateTime.tryParse(l.date)?.isAfter(last7Days) ?? false).fold(0.0, (s, i) => s + i.cost);
+      final prevFeed = _penFeedLogs.where((l) => (DateTime.tryParse(l.date)?.isBefore(last7Days) ?? false) && (DateTime.tryParse(l.date)?.isAfter(now.subtract(const Duration(days: 14))) ?? false)).fold(0.0, (s, i) => s + i.cost);
       
       final recentMilk = _milkRecords.where((r) => DateTime.tryParse(r.date)?.isAfter(last7Days) ?? false).fold(0.0, (s, i) => s + i.totalYield);
       final prevMilk = _milkRecords.where((r) => (DateTime.tryParse(r.date)?.isBefore(last7Days) ?? false) && (DateTime.tryParse(r.date)?.isAfter(now.subtract(const Duration(days: 14))) ?? false)).fold(0.0, (s, i) => s + i.totalYield);
@@ -186,7 +186,7 @@ class _OperationsDashboardScreenState extends State<OperationsDashboardScreen> {
     // 2. Health Outbreak Detection
     Map<int, int> recentPenHealth = {};
     for (var event in _healthEvents) {
-      final date = DateTime.tryParse(event.eventDate);
+      final date = DateTime.tryParse(event.date);
       if (date != null && date.isAfter(DateTime.now().subtract(const Duration(days: 7)))) {
         final animal = _animals.firstWhere((a) => a.id == event.animalId, orElse: () => _animals.first);
         final penId = animal.penId ?? 0;
@@ -692,7 +692,7 @@ class _OperationsDashboardScreenState extends State<OperationsDashboardScreen> {
     // Group health events by condition type
     Map<String, int> conditionCounts = {};
     for (var event in _healthEvents) {
-      conditionCounts[event.eventType] = (conditionCounts[event.eventType] ?? 0) + 1;
+      conditionCounts[event.condition] = (conditionCounts[event.condition] ?? 0) + 1;
     }
     
     // Get top 5 conditions

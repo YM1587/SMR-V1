@@ -43,6 +43,8 @@ class Animal {
   final String acquisitionType;
   final double acquisitionCost;
   final String? disposalReason;
+  final String? disposalDate;
+  final double? disposalValue;
   final String? notes;
 
   Animal({
@@ -59,6 +61,8 @@ class Animal {
     required this.acquisitionType,
     this.acquisitionCost = 0.0,
     this.disposalReason,
+    this.disposalDate,
+    this.disposalValue,
     this.notes,
   });
 
@@ -77,6 +81,8 @@ class Animal {
       acquisitionType: json['acquisition_type'] ?? '',
       acquisitionCost: double.tryParse(json['acquisition_cost'].toString()) ?? 0.0,
       disposalReason: json['disposal_reason'],
+      disposalDate: json['disposal_date'],
+      disposalValue: json['disposal_value'] != null ? double.tryParse(json['disposal_value'].toString()) : null,
       notes: json['notes'],
     );
   }
@@ -95,6 +101,8 @@ class Animal {
       'acquisition_type': acquisitionType,
       'acquisition_cost': acquisitionCost,
       'disposal_reason': disposalReason,
+      'disposal_date': disposalDate,
+      'disposal_value': disposalValue,
       'notes': notes,
     };
   }

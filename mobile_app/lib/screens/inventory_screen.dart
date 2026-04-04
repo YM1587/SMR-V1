@@ -128,7 +128,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
     return ListTile(
       leading: const CircleAvatar(backgroundColor: Colors.grey, child: Icon(Icons.archive, color: Colors.white)),
       title: Text(animal.name ?? animal.tagNumber),
-      subtitle: Text('Reason: ${animal.disposalReason} - ${animal.disposalDate != null ? DateFormat('MMM d, yyyy').format(animal.disposalDate!) : "Unknown Date"}'),
+      subtitle: Text('Reason: ${animal.disposalReason} - ${animal.disposalDate != null ? DateFormat('MMM d, yyyy').format(DateTime.tryParse(animal.disposalDate!) ?? DateTime.now()) : "Unknown Date"}'),
       trailing: Text(animal.disposalValue != null ? 'KES ${animal.disposalValue!.toStringAsFixed(0)}' : ''),
     );
   }

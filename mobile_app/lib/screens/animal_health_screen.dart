@@ -65,11 +65,11 @@ class _AnimalHealthScreenState extends State<AnimalHealthScreen> {
                 final newEvent = HealthEvent(
                   id: 0,
                   animalId: widget.animal.id,
-                  eventDate: dateController.text,
-                  eventType: 'Checkup', // Default or add field
-                  diagnosis: diagnosisController.text,
+                  date: dateController.text,
+                  condition: diagnosisController.text,
+                  symptoms: '', // Can be empty or add field
                   treatment: treatmentController.text,
-                  // notes: notesController.text, // HealthEvent doesn't have notes in models.dart, check schema
+                  notes: notesController.text,
                 );
                 await ApiService.createHealthEvent(newEvent);
                 Navigator.pop(context);
@@ -122,8 +122,8 @@ class _AnimalHealthScreenState extends State<AnimalHealthScreen> {
                             margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             child: ListTile(
                               leading: const Icon(Icons.medical_services, color: Colors.red),
-                              title: Text(event.diagnosis ?? 'Unknown'),
-                              subtitle: Text("${event.eventDate}\nTreatment: ${event.treatment ?? 'None'}"),
+                              title: Text(event.condition),
+                              subtitle: Text("${event.date}\nTreatment: ${event.treatment}"),
                               isThreeLine: true,
                             ),
                           );
