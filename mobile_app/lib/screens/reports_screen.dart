@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import 'package:intl/intl.dart';
 
 class ReportsScreen extends StatefulWidget {
   final int farmerId;
@@ -132,7 +133,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               children: [
                 const Text('Total Net Expenses', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 Text(
-                  'Ksh ${total.toStringAsFixed(2)}',
+                  'Ksh ${NumberFormat("#,##0.00").format(total)}',
                   style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.red),
                 ),
               ],
@@ -144,7 +145,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(e.key),
-                      Text('Ksh ${e.value.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                      Text('Ksh ${NumberFormat("#,##0.00").format(e.value)}', style: const TextStyle(fontWeight: FontWeight.w600)),
                     ],
                   ),
                 )),

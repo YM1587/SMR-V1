@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../services/api_service.dart';
 import '../models/models.dart';
+import 'login_screen.dart';
 import 'finance_screen.dart';
 import 'operations_dashboard_screen.dart';
 import 'reports_screen.dart';
@@ -131,17 +132,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildAppBar() {
     return SliverAppBar(
-      expandedHeight: 80,
+      expandedHeight: 120, // Increased for a more premium look
       floating: false,
       pinned: true,
-      backgroundColor: Colors.blue,
+      backgroundColor: Colors.blue.shade700,
+      elevation: 4,
       flexibleSpace: FlexibleSpaceBar(
-        title: const Text('Welcome Back, Farmer!', style: TextStyle(fontSize: 18)),
+        centerTitle: false,
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Smart Ranch', style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal, color: Colors.white70)),
+            const Text('Welcome Back, Farmer!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+          ],
+        ),
         titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
+        background: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.blue.shade900, Colors.blue.shade600],
+            ),
+          ),
+        ),
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.bar_chart),
+          icon: const Icon(Icons.bar_chart, color: Colors.white),
           tooltip: 'Reports',
           onPressed: () {
             Navigator.push(
@@ -151,8 +170,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
           },
         ),
         IconButton(
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh, color: Colors.white),
           onPressed: _fetchAllData,
+        ),
+        IconButton(
+          icon: const Icon(Icons.logout, color: Colors.white),
+          tooltip: 'Logout',
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+            );
+          },
         ),
       ],
     );
@@ -312,20 +341,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              _buildKPICardWithTrend('Income', 'Ksh ${NumberFormat.compact().format(monthlyIncome)}', Icons.arrow_upward, Colors.green, 
+              _buildKPICardWithTrend('Income', NumberFormat.compact().format(monthlyIncome), Icons.arrow_upward, Colors.green, 
                 lastMonthIncome > 0 ? ((monthlyIncome - lastMonthIncome) / lastMonthIncome * 100).toStringAsFixed(0) + '%' : null,
                 monthlyIncome >= lastMonthIncome),
               const SizedBox(width: 12),
-              _buildKPICardWithTrend('Expenses', 'Ksh ${NumberFormat.compact().format(monthlyExpenses)}', Icons.arrow_downward, Colors.red,
+              _buildKPICardWithTrend('Expenses', NumberFormat.compact().format(monthlyExpenses), Icons.arrow_downward, Colors.red,
                 lastMonthExpenses > 0 ? ((monthlyExpenses - lastMonthExpenses) / lastMonthExpenses * 100).toStringAsFixed(0) + '%' : null,
                 monthlyExpenses <= lastMonthExpenses),
               const SizedBox(width: 12),
-              _buildKPICardWithTrend('Net Profit', 'Ksh ${NumberFormat.compact().format(netProfit)}', Icons.account_balance, 
+              _buildKPICardWithTrend('Net Profit', NumberFormat.compact().format(netProfit), Icons.account_balance, 
                 netProfit >= 0 ? Colors.green : Colors.red,
                 lastNetProfit != 0 ? ((netProfit - lastNetProfit) / lastNetProfit.abs() * 100).toStringAsFixed(0) + '%' : null,
                 netProfit >= lastNetProfit),
               const SizedBox(width: 12),
-              _buildKPICard('Cost/Animal', 'Ksh ${NumberFormat.compact().format(costPerAnimal)}', Icons.pets, Colors.orange),
+              _buildKPICard('Cost/Animal', NumberFormat.compact().format(costPerAnimal), Icons.pets, Colors.orange),
             ],
           ),
         ),

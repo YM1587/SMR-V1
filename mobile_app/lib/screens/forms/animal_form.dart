@@ -276,7 +276,7 @@ class _AnimalFormState extends State<AnimalForm> {
               ),
               TextFormField(
                 controller: _costController,
-                decoration: const InputDecoration(labelText: 'Acquisition Cost'),
+                decoration: const InputDecoration(labelText: 'Acquisition Cost (Ksh)'),
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 16),

@@ -83,7 +83,7 @@ class _AnimalDisposalFormState extends State<AnimalDisposalForm> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _valueController,
-                decoration: const InputDecoration(labelText: 'Value / Sale Price (Optional)', prefixIcon: Icon(Icons.attach_money)),
+                decoration: const InputDecoration(labelText: 'Value / Sale Price (Ksh, Optional)', prefixIcon: Icon(Icons.payments)),
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 16),
