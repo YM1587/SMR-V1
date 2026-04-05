@@ -153,7 +153,7 @@ class _OperationsDashboardScreenState extends State<OperationsDashboardScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            label.contains('Milk') ? value.toStringAsFixed(1) + 'L' : 'Ksh ${NumberFormat.compact().format(value)}',
+            label.contains('Milk') ? value.toStringAsFixed(1) + 'L' : 'Ksh ${NumberFormat("#,##0").format(value)}',
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ],
@@ -276,7 +276,7 @@ class _OperationsDashboardScreenState extends State<OperationsDashboardScreen> {
         const SizedBox(height: 16),
         _buildMetricRow([
           _buildDetailMetric('Cost/kg', 'Ksh ${efficiency.toStringAsFixed(1)}', 'Avg Rate'),
-          _buildDetailMetric('Total Feed', 'Ksh ${NumberFormat.compact().format(totalFeedCost)}', 'Total Ksh'),
+          _buildDetailMetric('Total Feed', 'Ksh ${NumberFormat("#,##0").format(totalFeedCost)}', 'Total Ksh'),
         ]),
       ],
       Icons.grass,
@@ -640,7 +640,7 @@ class _OperationsDashboardScreenState extends State<OperationsDashboardScreen> {
                 reservedSize: 40,
                 getTitlesWidget: (value, meta) {
                   return Text(
-                    NumberFormat.compact().format(value),
+                    NumberFormat("#,##0").format(value),
                     style: const TextStyle(fontSize: 10, color: Colors.grey),
                   );
                 },

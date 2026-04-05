@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../services/api_service.dart';
 import '../models/models.dart';
 import 'login_screen.dart';
-import 'finance_screen.dart';
 import 'operations_dashboard_screen.dart';
 import 'reports_screen.dart';
 
@@ -139,13 +137,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
       elevation: 4,
       flexibleSpace: FlexibleSpaceBar(
         centerTitle: false,
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Smart Ranch', style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal, color: Colors.white70)),
-            const Text('Welcome Back, Farmer!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-          ],
+        title: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 40),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Smart Ranch', style: TextStyle(fontSize: 10, fontWeight: FontWeight.normal, color: Colors.white70)),
+                const Text('Welcome Back, Farmer!', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+              ],
+            ),
+          ),
         ),
         titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
         background: Container(
@@ -341,20 +347,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              _buildKPICardWithTrend('Income', NumberFormat.compact().format(monthlyIncome), Icons.arrow_upward, Colors.green, 
+              _buildKPICardWithTrend('Income', NumberFormat("#,##0").format(monthlyIncome), Icons.arrow_upward, Colors.green, 
                 lastMonthIncome > 0 ? ((monthlyIncome - lastMonthIncome) / lastMonthIncome * 100).toStringAsFixed(0) + '%' : null,
                 monthlyIncome >= lastMonthIncome),
               const SizedBox(width: 12),
-              _buildKPICardWithTrend('Expenses', NumberFormat.compact().format(monthlyExpenses), Icons.arrow_downward, Colors.red,
+              _buildKPICardWithTrend('Expenses', NumberFormat("#,##0").format(monthlyExpenses), Icons.arrow_downward, Colors.red,
                 lastMonthExpenses > 0 ? ((monthlyExpenses - lastMonthExpenses) / lastMonthExpenses * 100).toStringAsFixed(0) + '%' : null,
                 monthlyExpenses <= lastMonthExpenses),
               const SizedBox(width: 12),
-              _buildKPICardWithTrend('Net Profit', NumberFormat.compact().format(netProfit), Icons.account_balance, 
+              _buildKPICardWithTrend('Net Profit', NumberFormat("#,##0").format(netProfit), Icons.account_balance, 
                 netProfit >= 0 ? Colors.green : Colors.red,
                 lastNetProfit != 0 ? ((netProfit - lastNetProfit) / lastNetProfit.abs() * 100).toStringAsFixed(0) + '%' : null,
                 netProfit >= lastNetProfit),
               const SizedBox(width: 12),
-              _buildKPICard('Cost/Animal', NumberFormat.compact().format(costPerAnimal), Icons.pets, Colors.orange),
+              _buildKPICard('Cost/Animal', NumberFormat("#,##0").format(costPerAnimal), Icons.pets, Colors.orange),
             ],
           ),
         ),

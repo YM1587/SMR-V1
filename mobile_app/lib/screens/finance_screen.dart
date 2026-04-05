@@ -474,7 +474,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
           title: Text(t.category, style: const TextStyle(fontWeight: FontWeight.bold)),
           subtitle: Text('${t.date} • ${t.description ?? "No description"}'),
           trailing: Text(
-            '${isIncome ? "+" : "-"} Ksh ${t.amount.toStringAsFixed(0)}',
+            '${isIncome ? "+" : "-"} Ksh ${NumberFormat("#,##0").format(t.amount)}',
             style: TextStyle(fontWeight: FontWeight.bold, color: isIncome ? Colors.green : Colors.red),
           ),
         );
