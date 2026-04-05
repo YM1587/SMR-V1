@@ -173,6 +173,7 @@ class FeedLog {
   final String date;
   final String feedType;
   final double quantityKg;
+  final double costPerKg;
   final double cost;
 
   FeedLog({
@@ -181,17 +182,21 @@ class FeedLog {
     required this.date,
     required this.feedType,
     required this.quantityKg,
-    required this.cost,
+    required this.costPerKg,
+    this.cost = 0.0,
   });
 
   factory FeedLog.fromJson(Map<String, dynamic> json) {
+    double qty = double.tryParse(json['quantity_kg'].toString()) ?? 0.0;
+    double cpk = double.tryParse(json['cost_per_kg'].toString()) ?? 0.0;
     return FeedLog(
       id: int.tryParse(json['log_id'].toString()) ?? 0,
       penId: int.tryParse(json['pen_id'].toString()) ?? 0,
       date: json['date'] ?? '',
       feedType: json['feed_type'] ?? '',
-      quantityKg: double.tryParse(json['quantity_kg'].toString()) ?? 0.0,
-      cost: double.tryParse(json['cost_per_kg'].toString()) ?? 0.0,
+      quantityKg: qty,
+      costPerKg: cpk,
+      cost: json['total_cost'] != null ? (double.tryParse(json['total_cost'].toString()) ?? (qty * cpk)) : (qty * cpk),
     );
   }
 
@@ -201,7 +206,7 @@ class FeedLog {
       'date': date,
       'feed_type': feedType,
       'quantity_kg': quantityKg,
-      'cost_per_kg': cost,
+      'cost_per_kg': costPerKg,
     };
   }
 }
@@ -211,6 +216,7 @@ class IndividualFeedLog {
   final int animalId;
   final String feedType;
   final double quantityKg;
+  final double costPerKg;
   final double cost;
   final String date;
 
@@ -219,17 +225,21 @@ class IndividualFeedLog {
     required this.animalId,
     required this.feedType,
     required this.quantityKg,
-    required this.cost,
+    required this.costPerKg,
     required this.date,
+    this.cost = 0.0,
   });
 
   factory IndividualFeedLog.fromJson(Map<String, dynamic> json) {
+    double qty = double.tryParse(json['quantity_kg'].toString()) ?? 0.0;
+    double cpk = double.tryParse(json['cost_per_kg'].toString()) ?? 0.0;
     return IndividualFeedLog(
       id: int.tryParse(json['individual_feed_id'].toString()) ?? 0,
       animalId: int.tryParse(json['animal_id'].toString()) ?? 0,
       feedType: json['feed_type'] ?? '',
-      quantityKg: double.tryParse(json['quantity_kg'].toString()) ?? 0.0,
-      cost: double.tryParse(json['cost_per_kg'].toString()) ?? 0.0,
+      quantityKg: qty,
+      costPerKg: cpk,
+      cost: json['total_cost'] != null ? (double.tryParse(json['total_cost'].toString()) ?? (qty * cpk)) : (qty * cpk),
       date: json['date'] ?? '',
     );
   }
@@ -239,7 +249,7 @@ class IndividualFeedLog {
       'animal_id': animalId,
       'feed_type': feedType,
       'quantity_kg': quantityKg,
-      'cost_per_kg': cost,
+      'cost_per_kg': costPerKg,
       'date': date,
     };
   }

@@ -31,7 +31,7 @@ async def get_alerts(
     # 2. Fetch active, non-dismissed alerts
     result = await db.execute(
         select(Alert)
-        .where(and_(Alert.farmer_id == current_user.farmer_id, Alert.is_dismissed == 0))
+        .where(and_(Alert.farmer_id == farmer_id, Alert.is_dismissed == 0))
         .order_by(desc(Alert.created_at))
     )
     return result.scalars().all()
@@ -86,7 +86,7 @@ async def generate_dynamic_alerts(farmer_id: int, db: AsyncSession = Depends(get
     due_soon_query = select(Animal, BreedingRecord).join(BreedingRecord, Animal.animal_id == BreedingRecord.female_id).where(
         and_(
             Animal.farmer_id == farmer_id,
-            BreedingRecord.pregnancy_status == "Confirmed",
+            BreedingRecord.pregnancy_status == "Pregnant",
             BreedingRecord.actual_calving_date == None,
             BreedingRecord.expected_calving_date <= due_soon_date
         )

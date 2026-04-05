@@ -30,6 +30,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List<BreedingRecord> _breedingRecords = [];
   List<LaborActivity> _laborActivities = [];
   List<FinancialTransaction> _transactions = [];
+  List<dynamic> _pregnantAnimals = [];
 
   // Alerts
   List<Alert> _alerts = [];
@@ -54,6 +55,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ApiService.getAllBreedingRecords(farmerId),
         ApiService.getAllLaborActivities(farmerId),
         ApiService.getFinancialTransactions(farmerId),
+        ApiService.getPregnantAnimals(farmerId),
       ]);
 
       setState(() {
@@ -66,6 +68,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _breedingRecords = results[6] as List<BreedingRecord>;
         _laborActivities = results[7] as List<LaborActivity>;
         _transactions = results[8] as List<FinancialTransaction>;
+        _pregnantAnimals = results[9];
       });
 
       _fetchAlerts();
@@ -117,6 +120,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SliverToBoxAdapter(child: _buildHerdSnapshot()),
             SliverToBoxAdapter(child: _buildFinancialSnapshot()),
             SliverToBoxAdapter(child: _buildProductionSnapshot()),
+            SliverToBoxAdapter(child: _buildBreedingSnapshot()),
             SliverToBoxAdapter(child: _buildAlertsSection()),
             const SliverToBoxAdapter(child: SizedBox(height: 80)),
           ],
@@ -229,6 +233,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final date = DateTime.tryParse(l.date);
       return date != null && date.month == thisMonth && date.year == thisYear;
     }).fold(0.0, (sum, l) => sum + l.cost) +
+    _indFeedLogs.where((l) {
+      final date = DateTime.tryParse(l.date);
+      return date != null && date.month == thisMonth && date.year == thisYear;
+    }).fold(0.0, (sum, l) => sum + l.cost) +
     _laborActivities.where((l) {
       final date = DateTime.tryParse(l.date);
       return date != null && date.month == thisMonth && date.year == thisYear;
@@ -240,7 +248,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _breedingRecords.where((b) {
       final date = DateTime.tryParse(b.breedingDate);
       return date != null && date.month == thisMonth && date.year == thisYear;
-    }).fold(0.0, (sum, b) => sum + b.cost);
+    }).fold(0.0, (sum, b) => sum + b.cost) +
+    _animals.where((a) {
+      final date = DateTime.tryParse(a.birthDate ?? DateTime.now().toIso8601String().split('T')[0]);
+      return a.acquisitionCost > 0 && 
+             date != null && date.month == thisMonth && date.year == thisYear;
+    }).fold(0.0, (sum, a) => sum + a.acquisitionCost);
 
     final lastMonthIncome = _transactions.where((t) {
       final date = DateTime.tryParse(t.date);
@@ -255,6 +268,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final date = DateTime.tryParse(l.date);
       return date != null && date.month == lastMonth && date.year == lastMonthYear;
     }).fold(0.0, (sum, l) => sum + l.cost) +
+    _indFeedLogs.where((l) {
+      final date = DateTime.tryParse(l.date);
+      return date != null && date.month == lastMonth && date.year == lastMonthYear;
+    }).fold(0.0, (sum, l) => sum + l.cost) +
     _laborActivities.where((l) {
       final date = DateTime.tryParse(l.date);
       return date != null && date.month == lastMonth && date.year == lastMonthYear;
@@ -266,7 +283,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _breedingRecords.where((b) {
       final date = DateTime.tryParse(b.breedingDate);
       return date != null && date.month == lastMonth && date.year == lastMonthYear;
-    }).fold(0.0, (sum, b) => sum + b.cost);
+    }).fold(0.0, (sum, b) => sum + b.cost) +
+    _animals.where((a) {
+      final date = DateTime.tryParse(a.birthDate ?? DateTime.now().toIso8601String().split('T')[0]);
+      return a.acquisitionCost > 0 && 
+             date != null && date.month == lastMonth && date.year == lastMonthYear;
+    }).fold(0.0, (sum, a) => sum + a.acquisitionCost);
 
     final netProfit = monthlyIncome - monthlyExpenses;
     final lastNetProfit = lastMonthIncome - lastMonthExpenses;
@@ -394,6 +416,72 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
         ],
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildBreedingSnapshot() {
+    if (_pregnantAnimals.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+          child: Row(
+            children: [
+              const Icon(Icons.pregnant_woman, size: 20, color: Colors.purple),
+              const SizedBox(width: 8),
+              const Text('Breeding Highlights', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Spacer(),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const OperationsDashboardScreen()));
+                },
+                child: const Text('View All', style: TextStyle(fontSize: 12, color: Colors.purple)),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
+            ),
+            child: Column(
+              children: _pregnantAnimals.map((a) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(color: Colors.purple.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                        child: const Icon(Icons.baby_changing_station, size: 16, color: Colors.purple),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(a['name'] ?? a['tag_number'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                            Text('Due: ${a['expected_calving_date'] ?? 'N/A'}', style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right, size: 16, color: Colors.grey),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
         const SizedBox(height: 16),
       ],
     );

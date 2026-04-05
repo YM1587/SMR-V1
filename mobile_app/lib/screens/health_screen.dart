@@ -47,8 +47,8 @@ class _HealthScreenState extends State<HealthScreen> {
                       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       child: ListTile(
                         leading: const Icon(Icons.medical_services, color: Colors.red),
-                        title: Text(event.diagnosis ?? 'Unknown Diagnosis'),
-                        subtitle: Text("Date: ${event.eventDate}\nTreatment: ${event.treatment ?? 'None'}"),
+                        title: Text(event.condition.isNotEmpty ? event.condition : 'Unknown Diagnosis'),
+                        subtitle: Text("Date: ${event.date}\nTreatment: ${event.treatment.isNotEmpty ? event.treatment : 'None'}"),
                         isThreeLine: true,
                       ),
                     );

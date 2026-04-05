@@ -4,3 +4,6 @@ sqlalchemy
 asyncpg
 pydantic
 python-dotenv
+bcrypt
+python-jose[cryptography]
+python-multipart

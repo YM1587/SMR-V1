@@ -1,28 +1,30 @@
 import asyncio
-from database import SessionLocal
-import models
-from sqlalchemy.future import select
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy import text
+import os
+import json
 
-async def debug_db():
-    async with SessionLocal() as db:
-        try:
-            print("Querying pens...")
-            result = await db.execute(select(models.AnimalPen).where(models.AnimalPen.farmer_id == 1))
-            pens = result.scalars().all()
-            print(f"Pens found: {len(pens)}")
-            for p in pens:
-                print(f"ID: {p.pen_id}, Name: {p.pen_name}, Type: {p.pen_type}")
+DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql+asyncpg://postgres:%24Youngmoney12327@localhost/smartranch')
+
+async def main():
+    engine = create_async_engine(DATABASE_URL)
+    async with engine.begin() as conn:
+        print('--- FEED LOG TABLE ---')
+        res = await conn.execute(text("SELECT * FROM feed_log ORDER BY created_at DESC LIMIT 1;"))
+        row = res.fetchone()
+        if row:
+            # Row mapping in asyncpg/sqlalchemy
+            cols = res.keys()
+            print(dict(zip(cols, row)))
+        else:
+            print('No logs found.')
             
-            print("\nQuerying animals...")
-            result = await db.execute(select(models.Animal).where(models.Animal.farmer_id == 1))
-            animals = result.scalars().all()
-            print(f"Animals found: {len(animals)}")
-            for a in animals:
-                print(f"ID: {a.animal_id}, Tag: {a.tag_number}, Name: {a.name}, Type: {a.animal_type}, Sex: {a.gender}, PenID: {a.pen_id}")
-        except Exception as e:
-            print(f"Error: {e}")
-            import traceback
-            traceback.print_exc()
+        print('\n--- SCHEMA ---')
+        res = await conn.execute(text("SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'feed_log';"))
+        for row in res.all():
+            print(f'{row[0]}: {row[1]}')
+            
+    await engine.dispose()
 
-if __name__ == "__main__":
-    asyncio.run(debug_db())
+if __name__ == '__main__':
+    asyncio.run(main())

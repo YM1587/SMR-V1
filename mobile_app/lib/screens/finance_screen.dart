@@ -39,6 +39,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
       final results = await Future.wait([
         ApiService.getFinancialTransactions(farmerId),
         ApiService.getPenFeedLogs(farmerId),
+        ApiService.getIndividualFeedLogs(farmerId),
         ApiService.getAllLaborActivities(farmerId),
         ApiService.getAllHealthEvents(farmerId),
         ApiService.getAllBreedingRecords(farmerId),
@@ -47,10 +48,11 @@ class _FinanceScreenState extends State<FinanceScreen> {
 
       final txs = results[0] as List<FinancialTransaction>;
       final feeds = results[1] as List<FeedLog>;
-      final labors = results[2] as List<LaborActivity>;
-      final healths = results[3] as List<HealthEvent>;
-      final breedings = results[4] as List<BreedingRecord>;
-      final animals = results[5] as List<Animal>;
+      final indFeeds = results[2] as List<IndividualFeedLog>;
+      final labors = results[3] as List<LaborActivity>;
+      final healths = results[4] as List<HealthEvent>;
+      final breedings = results[5] as List<BreedingRecord>;
+      final animals = results[6] as List<Animal>;
 
       List<FinancialTransaction> combined = List.from(txs);
 
@@ -58,7 +60,13 @@ class _FinanceScreenState extends State<FinanceScreen> {
       for (var f in feeds) {
         combined.add(FinancialTransaction(
           id: -1, farmerId: farmerId, type: 'Expense', category: 'Feeding',
-          amount: f.cost, date: f.date, description: 'Feed: ${f.feedType}'
+          amount: f.cost, date: f.date, description: 'Feed: ${f.feedType} (Pen)'
+        ));
+      }
+      for (var f in indFeeds) {
+        combined.add(FinancialTransaction(
+          id: -1, farmerId: farmerId, type: 'Expense', category: 'Feeding',
+          amount: f.cost, date: f.date, description: 'Feed: ${f.feedType} (Individual)'
         ));
       }
       for (var l in labors) {

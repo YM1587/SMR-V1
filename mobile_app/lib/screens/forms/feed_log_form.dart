@@ -56,7 +56,7 @@ class _FeedLogFormState extends State<FeedLogForm> {
         date: DateTime.now().toIso8601String().split('T')[0],
         feedType: _feedType,
         quantityKg: double.tryParse(_quantityController.text) ?? 0.0,
-        cost: double.tryParse(_costController.text) ?? 0.0,
+        costPerKg: double.tryParse(_costController.text) ?? 0.0,
       );
 
       try {

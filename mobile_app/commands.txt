@@ -66,3 +66,21 @@ Android: Uses http://10.0.2.2:8000
 api_service.dart
 use 127.0.0.1 for Web and 10.0.2.2 for Android. 
 
+.\venv\Scripts\python.exe -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
+
+.\venv\Scripts\uvicorn.exe main:app --reload --host 127.0.0.1 --port 8000
+
+To run it on Android from your Windows machine, ensure you meet the following setup requirements:
+
+Install Android Setup Tools: If you haven't yet, install Android Studio. During installation, make sure to include the Android SDK, Android SDK Command-line Tools, and Android Emulator.
+
+Accept Android Licenses: Open a terminal and run the following command to finalize your SDK setup: flutter doctor --android-licenses (Press 'y' to accept the prompts)
+
+Start an Android Emulator (or Plug in a Device):
+
+Emulator: Open Android Studio -> Device Manager -> Create a Virtual Device -> Select a Phone (e.g., Pixel 6) -> Start it.
+Physical Device: Connect an Android phone to your Windows PC via USB. 
+Ensure USB Debugging is turned on inside your phone's Developer Options.
+Run the App: Once your emulator is running or your phone is plugged in, navigate your terminal to the root app folder: cd c:\dev\smart-ranch\mobile_app Then execute the build and install command: flutter run -d android
+
+This will compile the Kotlin/Java files, bundle your Dart code, and automatically open the identical Smart Ranch app you've been working on, natively on your Android system! Let me know if you run into any SDK/Gradle build errors while executing step 4.
