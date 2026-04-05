@@ -132,7 +132,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               children: [
                 const Text('Total Net Expenses', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 Text(
-                  '\$${total.toStringAsFixed(2)}',
+                  'Ksh ${total.toStringAsFixed(2)}',
                   style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.red),
                 ),
               ],
@@ -144,7 +144,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(e.key),
-                      Text('\$${e.value.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                      Text('Ksh ${e.value.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.w600)),
                     ],
                   ),
                 )),

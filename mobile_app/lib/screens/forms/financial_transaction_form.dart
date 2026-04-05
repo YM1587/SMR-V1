@@ -103,7 +103,7 @@ class _FinancialTransactionFormState extends State<FinancialTransactionForm> {
               ),
               TextFormField(
                 controller: _amountController,
-                decoration: const InputDecoration(labelText: 'Amount'),
+                decoration: const InputDecoration(labelText: 'Amount (Ksh)'),
                 keyboardType: TextInputType.number,
                 validator: (value) => value!.isEmpty ? 'Required' : null,
               ),

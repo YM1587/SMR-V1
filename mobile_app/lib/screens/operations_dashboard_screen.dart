@@ -153,7 +153,7 @@ class _OperationsDashboardScreenState extends State<OperationsDashboardScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            label.contains('Milk') ? value.toStringAsFixed(1) + 'L' : NumberFormat.compactCurrency(symbol: 'K').format(value),
+            label.contains('Milk') ? value.toStringAsFixed(1) + 'L' : 'Ksh ${NumberFormat.compact().format(value)}',
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ],
@@ -275,8 +275,8 @@ class _OperationsDashboardScreenState extends State<OperationsDashboardScreen> {
         _buildTrendGraph('Feed Cost vs Quantity', Colors.green),
         const SizedBox(height: 16),
         _buildMetricRow([
-          _buildDetailMetric('Cost/kg', 'KES ${efficiency.toStringAsFixed(1)}', 'Avg Rate'),
-          _buildDetailMetric('Total Feed', NumberFormat.compact().format(totalFeedCost), 'Total KES'),
+          _buildDetailMetric('Cost/kg', 'Ksh ${efficiency.toStringAsFixed(1)}', 'Avg Rate'),
+          _buildDetailMetric('Total Feed', 'Ksh ${NumberFormat.compact().format(totalFeedCost)}', 'Total Ksh'),
         ]),
       ],
       Icons.grass,
@@ -466,7 +466,7 @@ class _OperationsDashboardScreenState extends State<OperationsDashboardScreen> {
         const SizedBox(height: 16),
         _buildMetricRow([
           _buildDetailMetric('Man Hours', '${totalHours.toStringAsFixed(1)}h', 'Total'),
-          _buildDetailMetric('Cost/H', 'KES ${avgRate.toStringAsFixed(0)}', 'Avg Rate'),
+          _buildDetailMetric('Cost/H', 'Ksh ${avgRate.toStringAsFixed(0)}', 'Avg Rate'),
         ]),
       ],
       Icons.work,

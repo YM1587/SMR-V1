@@ -159,7 +159,7 @@ class _HealthRecordFormState extends State<HealthRecordForm> {
               ),
               TextFormField(
                 controller: _costController,
-                decoration: const InputDecoration(labelText: 'Cost'),
+                decoration: const InputDecoration(labelText: 'Cost (Ksh)'),
                 keyboardType: TextInputType.number,
               ),
               TextFormField(

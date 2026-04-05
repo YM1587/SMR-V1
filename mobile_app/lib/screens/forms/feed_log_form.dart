@@ -115,7 +115,7 @@ class _FeedLogFormState extends State<FeedLogForm> {
               ),
               TextFormField(
                 controller: _costController,
-                decoration: const InputDecoration(labelText: 'Cost per kg'),
+                decoration: const InputDecoration(labelText: 'Cost per kg (Ksh)'),
                 keyboardType: TextInputType.number,
                 validator: (value) => value!.isEmpty ? 'Required' : null,
               ),

@@ -87,7 +87,7 @@ class _LaborActivityFormState extends State<LaborActivityForm> {
               ),
               TextFormField(
                 controller: _costController,
-                decoration: const InputDecoration(labelText: 'Labor Cost'),
+                decoration: const InputDecoration(labelText: 'Labor Cost (Ksh)'),
                 keyboardType: TextInputType.number,
                 validator: (value) => value!.isEmpty ? 'Required' : null,
               ),

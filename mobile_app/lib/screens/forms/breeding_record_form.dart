@@ -265,7 +265,7 @@ class _BreedingRecordFormState extends State<BreedingRecordForm> {
               ],
               TextFormField(
                 controller: _costController,
-                decoration: const InputDecoration(labelText: 'Breeding Cost (KES)', icon: Icon(Icons.payments)),
+                decoration: const InputDecoration(labelText: 'Breeding Cost (Ksh)', icon: Icon(Icons.payments)),
                 keyboardType: TextInputType.number,
                 validator: (value) => value == null || value.isEmpty ? 'Required' : null,
               ),

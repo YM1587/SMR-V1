@@ -412,7 +412,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
           const SizedBox(height: 8),
           FittedBox(
             child: Text(
-              isPercent ? '${value.toStringAsFixed(1)}%' : 'KES ${NumberFormat("#,##0").format(value)}',
+              isPercent ? '${value.toStringAsFixed(1)}%' : 'Ksh ${NumberFormat("#,##0").format(value)}',
               style: TextStyle(color: color, fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
@@ -474,7 +474,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
           title: Text(t.category, style: const TextStyle(fontWeight: FontWeight.bold)),
           subtitle: Text('${t.date} • ${t.description ?? "No description"}'),
           trailing: Text(
-            '${isIncome ? "+" : "-"} ${t.amount.toStringAsFixed(0)}',
+            '${isIncome ? "+" : "-"} Ksh ${t.amount.toStringAsFixed(0)}',
             style: TextStyle(fontWeight: FontWeight.bold, color: isIncome ? Colors.green : Colors.red),
           ),
         );
