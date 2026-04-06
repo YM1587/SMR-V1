@@ -30,7 +30,8 @@ class ApiService {
     if (kIsWeb) {
       return 'http://localhost:8000';
     }
-    return 'http://10.0.2.2:8000';
+    // return 'http://10.0.2.2:8000'; // For Emulator
+    return 'http://192.168.100.40:8000'; // For Physical Device (Oppo CPH2269)
   }
 
   static Future<Map<String, dynamic>> login(String username, String password) async {
