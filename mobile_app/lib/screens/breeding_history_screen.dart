@@ -6,7 +6,7 @@ import 'forms/animal_form.dart';
 
 class BreedingHistoryScreen extends StatefulWidget {
   final Animal animal;
-  const BreedingHistoryScreen({Key? key, required this.animal}) : super(key: key);
+  const BreedingHistoryScreen({super.key, required this.animal});
 
   @override
   _BreedingHistoryScreenState createState() => _BreedingHistoryScreenState();
@@ -174,8 +174,8 @@ class _BreedingHistoryScreenState extends State<BreedingHistoryScreen> {
           );
           _loadRecords();
         },
-        child: const Icon(Icons.add),
         tooltip: 'Add Breeding Record',
+        child: const Icon(Icons.add),
       ) : null,
     );
   }

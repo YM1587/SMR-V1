@@ -17,7 +17,7 @@ import 'operations_dashboard_screen.dart';
 import 'package:intl/intl.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+  const DashboardScreen({super.key});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -117,7 +117,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     double income = 0;
     double expenses = 0;
     for (var t in thisMonthTrans) {
-      if (t.type == 'Income') income += t.amount; else expenses += t.amount;
+      if (t.type == 'Income') {
+        income += t.amount;
+      } else {
+        expenses += t.amount;
+      }
     }
     double netProfit = income - expenses;
 
@@ -131,7 +135,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     double prevIncome = 0;
     double prevExpenses = 0;
     for (var t in lastMonthTrans) {
-      if (t.type == 'Income') prevIncome += t.amount; else prevExpenses += t.amount;
+      if (t.type == 'Income') {
+        prevIncome += t.amount;
+      } else {
+        prevExpenses += t.amount;
+      }
     }
     double prevProfit = prevIncome - prevExpenses;
     bool isTrendingUp = netProfit >= prevProfit;

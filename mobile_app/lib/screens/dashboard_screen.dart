@@ -8,7 +8,7 @@ import 'reports_screen.dart';
 
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+  const DashboardScreen({super.key});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -17,7 +17,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final int farmerId = ApiService.farmerId ?? 1;
   bool _isLoading = true;
-  bool _showWarnings = false;
+  final bool _showWarnings = false;
 
   // Data
   List<Animal> _animals = [];
@@ -348,16 +348,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Row(
             children: [
               _buildKPICardWithTrend('Income', NumberFormat("#,##0").format(monthlyIncome), Icons.arrow_upward, Colors.green, 
-                lastMonthIncome > 0 ? ((monthlyIncome - lastMonthIncome) / lastMonthIncome * 100).toStringAsFixed(0) + '%' : null,
+                lastMonthIncome > 0 ? '${((monthlyIncome - lastMonthIncome) / lastMonthIncome * 100).toStringAsFixed(0)}%' : null,
                 monthlyIncome >= lastMonthIncome),
               const SizedBox(width: 12),
               _buildKPICardWithTrend('Expenses', NumberFormat("#,##0").format(monthlyExpenses), Icons.arrow_downward, Colors.red,
-                lastMonthExpenses > 0 ? ((monthlyExpenses - lastMonthExpenses) / lastMonthExpenses * 100).toStringAsFixed(0) + '%' : null,
+                lastMonthExpenses > 0 ? '${((monthlyExpenses - lastMonthExpenses) / lastMonthExpenses * 100).toStringAsFixed(0)}%' : null,
                 monthlyExpenses <= lastMonthExpenses),
               const SizedBox(width: 12),
               _buildKPICardWithTrend('Net Profit', NumberFormat("#,##0").format(netProfit), Icons.account_balance, 
                 netProfit >= 0 ? Colors.green : Colors.red,
-                lastNetProfit != 0 ? ((netProfit - lastNetProfit) / lastNetProfit.abs() * 100).toStringAsFixed(0) + '%' : null,
+                lastNetProfit != 0 ? '${((netProfit - lastNetProfit) / lastNetProfit.abs() * 100).toStringAsFixed(0)}%' : null,
                 netProfit >= lastNetProfit),
               const SizedBox(width: 12),
               _buildKPICard('Cost/Animal', NumberFormat("#,##0").format(costPerAnimal), Icons.pets, Colors.orange),

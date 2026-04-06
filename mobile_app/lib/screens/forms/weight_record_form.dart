@@ -5,7 +5,7 @@ import '../../models/models.dart';
 
 class WeightRecordForm extends StatefulWidget {
   final int farmerId;
-  const WeightRecordForm({Key? key, required this.farmerId}) : super(key: key);
+  const WeightRecordForm({super.key, required this.farmerId});
 
   @override
   _WeightRecordFormState createState() => _WeightRecordFormState();
@@ -102,7 +102,7 @@ class _WeightRecordFormState extends State<WeightRecordForm> {
           child: ListView(
             children: [
               DropdownButtonFormField<int>(
-                value: _selectedPenId,
+                initialValue: _selectedPenId,
                 decoration: const InputDecoration(labelText: 'Select Pen'),
                 items: _pens.map<DropdownMenuItem<int>>((pen) {
                   return DropdownMenuItem<int>(
@@ -120,7 +120,7 @@ class _WeightRecordFormState extends State<WeightRecordForm> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<int>(
-                value: _selectedAnimalId,
+                initialValue: _selectedAnimalId,
                 decoration: const InputDecoration(labelText: 'Select Animal'),
                 items: _filteredAnimals.map<DropdownMenuItem<int>>((animal) {
                   return DropdownMenuItem<int>(

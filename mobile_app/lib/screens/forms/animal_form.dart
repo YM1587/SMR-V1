@@ -5,7 +5,7 @@ import 'animal_disposal_form.dart';
 class AnimalForm extends StatefulWidget {
   final int farmerId;
   final Animal? animal;
-  const AnimalForm({Key? key, required this.farmerId, this.animal}) : super(key: key);
+  const AnimalForm({super.key, required this.farmerId, this.animal});
 
   @override
   _AnimalFormState createState() => _AnimalFormState();
@@ -43,7 +43,7 @@ class _AnimalFormState extends State<AnimalForm> {
       _gender = widget.animal!.sex ?? 'Female';
       _selectedPenId = widget.animal!.penId;
       _acquisitionType = widget.animal!.acquisitionType ?? 'Born-on-farm';
-      _costController.text = widget.animal!.acquisitionCost?.toString() ?? '';
+      _costController.text = widget.animal!.acquisitionCost.toString() ?? '';
       _birthDateController.text = widget.animal!.birthDate ?? '';
     } else {
       // Default birth date to today for new animals
@@ -61,9 +61,7 @@ class _AnimalFormState extends State<AnimalForm> {
         bool exists = _pens.any((p) => p.id == _selectedPenId);
         if (!exists && _pens.isNotEmpty) {
            // If the animal's pen isn't in the list (rare), default to first available
-           if (_selectedPenId == null) {
-             _selectedPenId = _pens[0].id;
-           }
+           _selectedPenId ??= _pens[0].id;
         }
       });
     } catch (e) {
@@ -133,9 +131,9 @@ class _AnimalFormState extends State<AnimalForm> {
   }
 
   Future<void> _showAddPenDialog() async {
-    final _penNameController = TextEditingController();
-    String _penType = 'Barn'; // Default
-    final _formKeyPen = GlobalKey<FormState>();
+    final penNameController = TextEditingController();
+    String penType = 'Barn'; // Default
+    final formKeyPen = GlobalKey<FormState>();
 
     await showDialog(
       context: context,
@@ -143,22 +141,22 @@ class _AnimalFormState extends State<AnimalForm> {
         return AlertDialog(
           title: const Text('Add New Pen'),
           content: Form(
-            key: _formKeyPen,
+            key: formKeyPen,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextFormField(
-                  controller: _penNameController,
+                  controller: penNameController,
                   decoration: const InputDecoration(labelText: 'Pen Name'),
                   validator: (value) => value!.isEmpty ? 'Required' : null,
                 ),
                 DropdownButtonFormField<String>(
-                  value: _penType,
+                  initialValue: penType,
                   decoration: const InputDecoration(labelText: 'Pen Type'),
                   items: ['Barn', 'Pasture', 'Coop', 'Stall']
                       .map((t) => DropdownMenuItem(value: t, child: Text(t)))
                       .toList(),
-                  onChanged: (v) => _penType = v!,
+                  onChanged: (v) => penType = v!,
                 ),
               ],
             ),
@@ -170,11 +168,11 @@ class _AnimalFormState extends State<AnimalForm> {
             ),
             ElevatedButton(
               onPressed: () async {
-                if (_formKeyPen.currentState!.validate()) {
+                if (formKeyPen.currentState!.validate()) {
                   final data = {
                     'farmer_id': widget.farmerId,
-                    'pen_name': _penNameController.text,
-                    'pen_type': _penType,
+                    'pen_name': penNameController.text,
+                    'pen_type': penType,
                     'capacity': 100, // Default or add field
                     'description': 'Created from Animal Form',
                   };
@@ -214,7 +212,7 @@ class _AnimalFormState extends State<AnimalForm> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<int>(
-                        value: _selectedPenId,
+                        initialValue: _selectedPenId,
                         decoration: const InputDecoration(labelText: 'Pen'),
                         items: _pens.map<DropdownMenuItem<int>>((pen) {
                           return DropdownMenuItem<int>(
@@ -243,7 +241,7 @@ class _AnimalFormState extends State<AnimalForm> {
                 validator: (value) => value!.isEmpty ? 'Required' : null,
               ),
               DropdownButtonFormField<String>(
-                value: _animalType,
+                initialValue: _animalType,
                 decoration: const InputDecoration(labelText: 'Animal Type'),
                 items: ['Dairy', 'Beef']
                     .map((type) => DropdownMenuItem(value: type, child: Text(type)))
@@ -251,7 +249,7 @@ class _AnimalFormState extends State<AnimalForm> {
                 onChanged: (value) => setState(() => _animalType = value!),
               ),
               DropdownButtonFormField<String>(
-                value: _selectedBreed,
+                initialValue: _selectedBreed,
                 decoration: const InputDecoration(labelText: 'Breed'),
                 items: _breeds
                     .map((breed) => DropdownMenuItem(value: breed, child: Text(breed)))
@@ -259,7 +257,7 @@ class _AnimalFormState extends State<AnimalForm> {
                 onChanged: (value) => setState(() => _selectedBreed = value!),
               ),
               DropdownButtonFormField<String>(
-                value: _gender,
+                initialValue: _gender,
                 decoration: const InputDecoration(labelText: 'Gender'),
                 items: ['Male', 'Female']
                     .map((type) => DropdownMenuItem(value: type, child: Text(type)))
@@ -267,7 +265,7 @@ class _AnimalFormState extends State<AnimalForm> {
                 onChanged: (value) => setState(() => _gender = value!),
               ),
               DropdownButtonFormField<String>(
-                value: _acquisitionType,
+                initialValue: _acquisitionType,
                 decoration: const InputDecoration(labelText: 'Acquisition Type'),
                 items: ['Purchased', 'Born-on-farm']
                     .map((type) => DropdownMenuItem(value: type, child: Text(type)))

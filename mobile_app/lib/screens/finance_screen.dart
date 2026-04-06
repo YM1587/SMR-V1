@@ -21,11 +21,11 @@ class _FinanceScreenState extends State<FinanceScreen> {
   TimeRange _selectedRange = TimeRange.month;
   DateTimeRange? _customRange;
 
-  List<FeedLog> _feedLogs = [];
-  List<LaborActivity> _laborActivities = [];
-  List<HealthEvent> _healthEvents = [];
-  List<BreedingRecord> _breedingRecords = [];
-  List<Animal> _animals = [];
+  final List<FeedLog> _feedLogs = [];
+  final List<LaborActivity> _laborActivities = [];
+  final List<HealthEvent> _healthEvents = [];
+  final List<BreedingRecord> _breedingRecords = [];
+  final List<Animal> _animals = [];
 
   @override
   void initState() {

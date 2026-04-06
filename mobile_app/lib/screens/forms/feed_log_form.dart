@@ -4,7 +4,7 @@ import '../../models/models.dart';
 
 class FeedLogForm extends StatefulWidget {
   final int farmerId;
-  const FeedLogForm({Key? key, required this.farmerId}) : super(key: key);
+  const FeedLogForm({super.key, required this.farmerId});
 
   @override
   _FeedLogFormState createState() => _FeedLogFormState();
@@ -88,7 +88,7 @@ class _FeedLogFormState extends State<FeedLogForm> {
           child: ListView(
             children: [
               DropdownButtonFormField<int>(
-                value: _selectedPenId,
+                initialValue: _selectedPenId,
                 decoration: const InputDecoration(labelText: 'Pen'),
                 items: _pens.map<DropdownMenuItem<int>>((pen) {
                   return DropdownMenuItem<int>(
@@ -100,7 +100,7 @@ class _FeedLogFormState extends State<FeedLogForm> {
                 validator: (value) => value == null ? 'Required' : null,
               ),
               DropdownButtonFormField<String>(
-                value: _feedType,
+                initialValue: _feedType,
                 decoration: const InputDecoration(labelText: 'Feed Type'),
                 items: _feedTypes
                     .map((type) => DropdownMenuItem(value: type, child: Text(type)))

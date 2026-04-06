@@ -6,7 +6,7 @@ class BreedingRecordForm extends StatefulWidget {
   final int farmerId;
   final BreedingRecord? existingRecord;
   final int? femaleInitialId;
-  const BreedingRecordForm({Key? key, required this.farmerId, this.existingRecord, this.femaleInitialId}) : super(key: key);
+  const BreedingRecordForm({super.key, required this.farmerId, this.existingRecord, this.femaleInitialId});
 
   @override
   _BreedingRecordFormState createState() => _BreedingRecordFormState();
@@ -163,7 +163,7 @@ class _BreedingRecordFormState extends State<BreedingRecordForm> {
           child: ListView(
             children: [
               DropdownButtonFormField<int>(
-                value: _selectedFemaleId,
+                initialValue: _selectedFemaleId,
                 decoration: const InputDecoration(labelText: 'Female Animal'),
                 items: _females.map<DropdownMenuItem<int>>((animal) {
                   return DropdownMenuItem<int>(
@@ -183,7 +183,7 @@ class _BreedingRecordFormState extends State<BreedingRecordForm> {
               ),
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
-                value: _breedingMethod,
+                initialValue: _breedingMethod,
                 decoration: const InputDecoration(labelText: 'Method'),
                 items: ['Natural', 'AI']
                     .map((type) => DropdownMenuItem(value: type, child: Text(type)))
@@ -192,7 +192,7 @@ class _BreedingRecordFormState extends State<BreedingRecordForm> {
               ),
               if (_breedingMethod == 'Natural')
                 DropdownButtonFormField<int>(
-                  value: _selectedMaleId,
+                  initialValue: _selectedMaleId,
                   decoration: const InputDecoration(labelText: 'Male Animal (Optional)'),
                   items: _males.map<DropdownMenuItem<int>>((animal) {
                     return DropdownMenuItem<int>(
@@ -206,7 +206,7 @@ class _BreedingRecordFormState extends State<BreedingRecordForm> {
               const Divider(),
               const Text("Follow-up Information", style: TextStyle(fontWeight: FontWeight.bold)),
               DropdownButtonFormField<String>(
-                value: _pregnancyStatus,
+                initialValue: _pregnancyStatus,
                 decoration: const InputDecoration(labelText: 'Pregnancy Status'),
                 items: ['Unknown', 'Pregnant', 'Failed']
                     .map((status) => DropdownMenuItem(value: status, child: Text(status)))
@@ -228,7 +228,7 @@ class _BreedingRecordFormState extends State<BreedingRecordForm> {
                 ),
               const SizedBox(height: 10),
               DropdownButtonFormField<String?>(
-                value: _outcome,
+                initialValue: _outcome,
                 decoration: const InputDecoration(labelText: 'Outcome'),
                 items: [null, 'Live Calf', 'Abortion', 'Stillborn']
                     .map((o) => DropdownMenuItem(value: o, child: Text(o ?? "No outcome yet")))
@@ -249,7 +249,7 @@ class _BreedingRecordFormState extends State<BreedingRecordForm> {
                 ),
                 if (_outcome == 'Live Calf')
                   DropdownButtonFormField<int?>(
-                    value: _selectedOffspringId,
+                    initialValue: _selectedOffspringId,
                     decoration: const InputDecoration(labelText: 'Link Offspring Animal'),
                     items: [
                       const DropdownMenuItem<int?>(value: null, child: Text("Not linked yet")),

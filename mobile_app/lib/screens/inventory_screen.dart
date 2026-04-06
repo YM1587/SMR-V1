@@ -146,7 +146,7 @@ class _InventoryScreenState extends State<InventoryScreen> {
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.blueGrey),
           ),
         ),
-        ...penAnimals.map((animal) => _buildAnimalTile(animal)).toList(),
+        ...penAnimals.map((animal) => _buildAnimalTile(animal)),
       ],
     );
   }

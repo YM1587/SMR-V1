@@ -4,7 +4,7 @@ import '../../models/models.dart';
 
 class FinancialTransactionForm extends StatefulWidget {
   final int farmerId;
-  const FinancialTransactionForm({Key? key, required this.farmerId}) : super(key: key);
+  const FinancialTransactionForm({super.key, required this.farmerId});
 
   @override
   _FinancialTransactionFormState createState() => _FinancialTransactionFormState();
@@ -81,7 +81,7 @@ class _FinancialTransactionFormState extends State<FinancialTransactionForm> {
           child: ListView(
             children: [
               DropdownButtonFormField<String>(
-                value: _type,
+                initialValue: _type,
                 decoration: const InputDecoration(labelText: 'Type'),
                 items: ['Income', 'Expense']
                     .map((type) => DropdownMenuItem(value: type, child: Text(type)))
@@ -89,7 +89,7 @@ class _FinancialTransactionFormState extends State<FinancialTransactionForm> {
                 onChanged: (value) => setState(() => _type = value!),
               ),
               DropdownButtonFormField<String>(
-                value: _category,
+                initialValue: _category,
                 decoration: const InputDecoration(labelText: 'Category'),
                 items: currentCategories
                     .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))

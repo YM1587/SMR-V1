@@ -4,7 +4,7 @@ import '../../models/models.dart';
 
 class HealthRecordForm extends StatefulWidget {
   final int farmerId;
-  const HealthRecordForm({Key? key, required this.farmerId}) : super(key: key);
+  const HealthRecordForm({super.key, required this.farmerId});
 
   @override
   _HealthRecordFormState createState() => _HealthRecordFormState();
@@ -111,7 +111,7 @@ class _HealthRecordFormState extends State<HealthRecordForm> {
           child: ListView(
             children: [
               DropdownButtonFormField<int>(
-                value: _selectedPenId,
+                initialValue: _selectedPenId,
                 decoration: const InputDecoration(labelText: 'Select Pen'),
                 items: _pens.map<DropdownMenuItem<int>>((pen) {
                   return DropdownMenuItem<int>(
@@ -129,7 +129,7 @@ class _HealthRecordFormState extends State<HealthRecordForm> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<int>(
-                value: _selectedAnimalId,
+                initialValue: _selectedAnimalId,
                 decoration: const InputDecoration(labelText: 'Select Animal'),
                 items: _filteredAnimals.map<DropdownMenuItem<int>>((animal) {
                   return DropdownMenuItem<int>(
@@ -167,7 +167,7 @@ class _HealthRecordFormState extends State<HealthRecordForm> {
                 decoration: const InputDecoration(labelText: 'Veterinarian Name'),
               ),
               DropdownButtonFormField<String>(
-                value: _outcome,
+                initialValue: _outcome,
                 decoration: const InputDecoration(labelText: 'Outcome/Status'),
                 items: ['Under Treatment', 'Recovered', 'Died', 'Culled']
                     .map((o) => DropdownMenuItem(value: o, child: Text(o)))

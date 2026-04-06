@@ -7,7 +7,7 @@ class AnimalDisposalForm extends StatefulWidget {
   final Animal animal;
   final int farmerId;
 
-  const AnimalDisposalForm({Key? key, required this.animal, required this.farmerId}) : super(key: key);
+  const AnimalDisposalForm({super.key, required this.animal, required this.farmerId});
 
   @override
   _AnimalDisposalFormState createState() => _AnimalDisposalFormState();
@@ -58,7 +58,7 @@ class _AnimalDisposalFormState extends State<AnimalDisposalForm> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               DropdownButtonFormField<String>(
-                value: _reason,
+                initialValue: _reason,
                 decoration: const InputDecoration(labelText: 'Reason'),
                 items: _reasons.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
                 onChanged: (val) => setState(() => _reason = val!),

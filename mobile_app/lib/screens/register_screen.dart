@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
+  const RegisterScreen({super.key});
 
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
@@ -85,7 +85,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               _buildTextField(_locationController, 'Location', Icons.location_on),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _farmType,
+                initialValue: _farmType,
                 decoration: InputDecoration(
                   labelText: 'Farm Type',
                   prefixIcon: const Icon(Icons.category),

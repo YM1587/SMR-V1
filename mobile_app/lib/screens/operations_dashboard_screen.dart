@@ -5,7 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 
 class OperationsDashboardScreen extends StatefulWidget {
-  const OperationsDashboardScreen({Key? key}) : super(key: key);
+  const OperationsDashboardScreen({super.key});
 
   @override
   _OperationsDashboardScreenState createState() => _OperationsDashboardScreenState();
@@ -153,7 +153,7 @@ class _OperationsDashboardScreenState extends State<OperationsDashboardScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            label.contains('Milk') ? value.toStringAsFixed(1) + 'L' : 'Ksh ${NumberFormat("#,##0").format(value)}',
+            label.contains('Milk') ? '${value.toStringAsFixed(1)}L' : 'Ksh ${NumberFormat("#,##0").format(value)}',
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ],

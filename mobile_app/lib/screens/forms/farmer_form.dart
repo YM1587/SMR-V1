@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 
 class FarmerForm extends StatefulWidget {
-  const FarmerForm({Key? key}) : super(key: key);
+  const FarmerForm({super.key});
 
   @override
   _FarmerFormState createState() => _FarmerFormState();
@@ -93,7 +93,7 @@ class _FarmerFormState extends State<FarmerForm> {
                 decoration: const InputDecoration(labelText: 'Location'),
               ),
               DropdownButtonFormField<String>(
-                value: _farmType,
+                initialValue: _farmType,
                 decoration: const InputDecoration(labelText: 'Farm Type'),
                 items: ['Dairy', 'Beef', 'Mixed']
                     .map((type) => DropdownMenuItem(value: type, child: Text(type)))

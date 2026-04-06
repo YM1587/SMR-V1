@@ -11,14 +11,14 @@ class CompactKPICard extends StatelessWidget {
   final bool? isPositive;
 
   const CompactKPICard({
-    Key? key,
+    super.key,
     required this.label,
     required this.value,
     required this.icon,
     required this.color,
     this.trend,
     this.isPositive,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -87,13 +87,13 @@ class AttentionListItem extends StatelessWidget {
   final VoidCallback? onTap;
 
   const AttentionListItem({
-    Key? key,
+    super.key,
     required this.animalName,
     required this.reason,
     required this.icon,
     required this.color,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -137,11 +137,11 @@ class PerformerRow extends StatelessWidget {
   final bool isTop;
 
   const PerformerRow({
-    Key? key,
+    super.key,
     required this.animalName,
     required this.value,
     required this.isTop,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -183,14 +183,14 @@ class AlertCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const AlertCard({
-    Key? key,
+    super.key,
     required this.severity,
     required this.title,
     required this.description,
     required this.icon,
     required this.color,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -248,10 +248,10 @@ class SectionHeader extends StatelessWidget {
   final IconData icon;
 
   const SectionHeader({
-    Key? key,
+    super.key,
     required this.title,
     required this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

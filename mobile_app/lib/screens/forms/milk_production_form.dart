@@ -5,7 +5,7 @@ import '../../models/models.dart';
 
 class MilkProductionForm extends StatefulWidget {
   final int farmerId;
-  const MilkProductionForm({Key? key, required this.farmerId}) : super(key: key);
+  const MilkProductionForm({super.key, required this.farmerId});
 
   @override
   _MilkProductionFormState createState() => _MilkProductionFormState();
@@ -90,7 +90,7 @@ class _MilkProductionFormState extends State<MilkProductionForm> {
           child: ListView(
             children: [
               DropdownButtonFormField<int>(
-                value: _selectedAnimalId,
+                initialValue: _selectedAnimalId,
                 decoration: const InputDecoration(labelText: 'Animal'),
                 items: _animals.map<DropdownMenuItem<int>>((animal) {
                   return DropdownMenuItem<int>(
