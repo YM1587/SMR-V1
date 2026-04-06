@@ -72,7 +72,7 @@ class _MainScreenState extends State<MainScreen> {
           children: <Widget>[
             Expanded(child: _buildNavItem(0, Icons.dashboard, 'Home')),
             Expanded(child: _buildNavItem(1, Icons.pets, 'Animals')),
-            const SizedBox(width: 48), 
+            const SizedBox(width: 32), // Reduced from 48 to save space
             Expanded(child: _buildNavItem(2, Icons.analytics, 'Operations')),
             Expanded(child: _buildNavItem(3, Icons.attach_money, 'Finance')),
           ],
@@ -96,12 +96,14 @@ class _MainScreenState extends State<MainScreen> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: isSelected ? Colors.green : Colors.grey, size: 24),
+          Icon(icon, color: isSelected ? Colors.green : Colors.grey, size: 20),
           Text(
             label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: isSelected ? Colors.green : Colors.grey,
-              fontSize: 10,
+              fontSize: 9,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),

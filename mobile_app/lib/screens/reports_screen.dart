@@ -101,15 +101,17 @@ class _ReportsScreenState extends State<ReportsScreen> {
               child: Icon(Icons.trending_down, color: Colors.red.shade700, size: 40),
             ),
             const SizedBox(width: 20),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Overall Mortality Rate', style: TextStyle(fontSize: 16, color: Colors.grey)),
-                Text(
-                  '$rate%',
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                ),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Overall Mortality Rate', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                  Text(
+                    '$rate%',
+                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -131,7 +133,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Total Net Expenses', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Expanded(
+                  child: Text('Total Net Expenses', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                ),
                 Text(
                   'Ksh ${NumberFormat("#,##0.00").format(total)}',
                   style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.red),
@@ -144,7 +148,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(e.key),
+                      Expanded(child: Text(e.key)),
                       Text('Ksh ${NumberFormat("#,##0.00").format(e.value)}', style: const TextStyle(fontWeight: FontWeight.w600)),
                     ],
                   ),
@@ -172,8 +176,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           children: [
             Icon(Icons.scale, color: Colors.green),
             SizedBox(width: 12),
-            Text('View Pen-wise Feed Conversion Ratio', style: TextStyle(fontWeight: FontWeight.bold)),
-            Spacer(),
+            Expanded(child: Text('View Pen-wise Feed Conversion Ratio', style: TextStyle(fontWeight: FontWeight.bold))),
             Icon(Icons.chevron_right),
           ],
         ),
