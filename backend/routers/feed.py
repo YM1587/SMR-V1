@@ -13,7 +13,7 @@ router = APIRouter(
     tags=["Feed"]
 )
 
-@router.post("/pen", response_model=schemas.FeedLog, status_code=status.HTTP_201_CREATED)
+@router.post("/pen/", response_model=schemas.FeedLog, status_code=status.HTTP_201_CREATED)
 async def create_pen_feed_log(
     log: schemas.FeedLogCreate, 
     db: AsyncSession = Depends(get_db),
@@ -31,7 +31,7 @@ async def create_pen_feed_log(
     await db.refresh(new_log)
     return new_log
 
-@router.post("/individual", response_model=schemas.IndividualFeedLog, status_code=status.HTTP_201_CREATED)
+@router.post("/individual/", response_model=schemas.IndividualFeedLog, status_code=status.HTTP_201_CREATED)
 async def create_individual_feed_log(
     log: schemas.IndividualFeedLogCreate, 
     db: AsyncSession = Depends(get_db),

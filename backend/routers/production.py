@@ -17,7 +17,7 @@ router = APIRouter(
 
 # --- MILK PRODUCTION ---
 
-@router.post("/milk", response_model=schemas.MilkProduction, status_code=status.HTTP_201_CREATED)
+@router.post("/milk/", response_model=schemas.MilkProduction, status_code=status.HTTP_201_CREATED)
 async def create_milk_production(
     production: schemas.MilkProductionCreate, 
     db: AsyncSession = Depends(get_db),
@@ -69,7 +69,7 @@ async def read_farmer_milk_production(
 
 # --- WEIGHT RECORDS ---
 
-@router.post("/weight", response_model=schemas.WeightRecord, status_code=status.HTTP_201_CREATED)
+@router.post("/weight/", response_model=schemas.WeightRecord, status_code=status.HTTP_201_CREATED)
 async def create_weight_record(
     weight: schemas.WeightRecordCreate, 
     db: AsyncSession = Depends(get_db),
@@ -125,7 +125,7 @@ async def read_animal_weight_records(
 
 # --- BREEDING RECORDS ---
 
-@router.post("/breeding", response_model=schemas.BreedingRecord, status_code=status.HTTP_201_CREATED)
+@router.post("/breeding/", response_model=schemas.BreedingRecord, status_code=status.HTTP_201_CREATED)
 async def create_breeding_record(
     breeding: schemas.BreedingRecordCreate, 
     db: AsyncSession = Depends(get_db),
